@@ -29,7 +29,7 @@ public:
 	}
 };
 
-map <process, int> processMap;
+map <int, process> processMap;
 
 void simulate(int );
 
@@ -102,12 +102,13 @@ void simulate(int numOfProcesses)
 		    }
 		}
 
-		processMap[p] = p.id;
+		processMap[p.id] = p;
 
 		calcAvgMemory += p.memorySize;
 		calcAvgCycles += p.numOfCycles;
 
 		cout << "pid = " << p.id << ", cycles = " << p.numOfCycles << ", memory(KB) = " << p.memorySize << endl;
+		//cout << "pid = " << processMap[i].id << ", cycles = " << processMap[i].numOfCycles << ", memory(KB) = " << processMap[i].memorySize <<"should be same as above"<< endl;
 	}
 
 	cout << "Avg Cycles: " << calcAvgCycles / numOfProcesses << " Avg Memory: " << calcAvgMemory / numOfProcesses << endl;
