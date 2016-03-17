@@ -22,6 +22,8 @@ public:
 	int id;
 	int numOfCycles;
 	int memorySize;
+	int waitTime;
+	int arrivalTime;
 
 	bool operator<(const process& other) const
 	{
@@ -62,6 +64,7 @@ void simulate(int numOfProcesses)
 	{
 	 	process p;
 		p.id = i;
+		p.arrivalTime = (i-1) * 50;
 
 		if(numOfProcesses == 1) {//directly assign the means
 			p.numOfCycles = 6000;
@@ -107,7 +110,7 @@ void simulate(int numOfProcesses)
 		calcAvgMemory += p.memorySize;
 		calcAvgCycles += p.numOfCycles;
 
-		cout << "pid = " << p.id << ", cycles = " << p.numOfCycles << ", memory(KB) = " << p.memorySize << endl;
+		cout << "pid = " << p.id << ", cycles = " << p.numOfCycles << ", memory(KB) = " << p.memorySize << ", arrival time = " << p.arrivalTime << endl;
 		//cout << "pid = " << processMap[i].id << ", cycles = " << processMap[i].numOfCycles << ", memory(KB) = " << processMap[i].memorySize <<"should be same as above"<< endl;
 	}
 
