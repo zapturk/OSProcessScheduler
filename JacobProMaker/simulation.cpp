@@ -117,3 +117,45 @@ void simulate(int numOfProcesses)
 	cout << "Avg Cycles: " << calcAvgCycles / numOfProcesses << " Avg Memory: " << calcAvgMemory / numOfProcesses << endl;
 
 }
+
+void sjf()
+{
+	int arrayFinished[50][1]
+	int overallTime = 0, processArrived = 0, fastestProcess;
+
+	while (i < 50)
+    {
+        arrayFinished[i][0] = i;			//I used whiles to populate the 2d array
+        arrayFinished[i][1] = 0;
+        i++;
+    }    
+
+	while(j < 50)
+	{
+		if (overallTime == 0)
+		{
+			overallTime = processMap[1].numOfCycles;
+			arrayFinished[1][1] == 1;
+		}
+		else if(overallTime != 0)
+		{
+			processArrived = overallTime/50;
+			fastestProcess = 0;
+			for(int k=2; k < processArrived; k++)
+			{
+				if(processMap[k+1].numOfCycles < processMap[k].numOfCycles && arrayFinished[k][1] == 0)
+				{
+					fastestProcess = processMap[k+1].id;
+				} 
+			}
+			timeRun = processMap[fastestProcess].numOfCycles;
+			arrayFinished[fastestProcess][1] == 1;
+				
+		}
+		overallTime += timeRun;
+		j++
+	}
+	
+
+	return 0;
+}
