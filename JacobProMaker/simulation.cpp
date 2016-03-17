@@ -15,6 +15,7 @@ const int MINCYCLES = 1000;
 const int MAXCYCLES = 11000;
 const int MINMEMORY = 1;
 const int MAXMEMORY = 100;
+const int CS = 10;
 
 class process
 {
@@ -34,6 +35,7 @@ public:
 map <int, process> processMap;
 
 void simulate(int );
+void fifo(int );
 
 int main()
 {
@@ -43,6 +45,7 @@ int main()
 	cin >> i;
 
 	simulate(i);
+	fifo(i);
 
 	return 0;
 }
@@ -115,5 +118,39 @@ void simulate(int numOfProcesses)
 	}
 
 	cout << "Avg Cycles: " << calcAvgCycles / numOfProcesses << " Avg Memory: " << calcAvgMemory / numOfProcesses << endl;
+
+}
+
+void fifo(int numOfProcesses)
+{
+	process tempP;
+	int totalWait = 0;
+	int overallTime = 0;
+
+	cout << endl << "---FIFO Algorithm---" << endl;
+
+	for(int i=1; i <= numOfProcesses; i++)
+	{
+		tempP = processMap[i];
+		processMap[i].waitTime = tempP.waitTime = overallTime;
+		overallTime = overallTime + tempP.numOfCycles;
+
+		cout << "pid = " << tempP.id << ", cycles = " << tempP.numOfCycles <<", waitTime = " << tempP.waitTime << endl;
+
+		//add context switch time to overall if not on last process
+		if(i != numOfProcesses) {
+			overallTime = overallTime + CS;
+		}
+	}
+
+	//get totalWait time
+	for(int i=1; i <= numOfProcesses; i++)
+	{
+		totalWait = totalWait + processMap[i].waitTime;
+	}
+
+	cout << "Average wait time = " << totalWait / numOfProcesses << endl;
+	cout << "Total penalty time = " << (numOfProcesses-1) * CS << endl;
+	cout << "------" << endl;
 
 }
