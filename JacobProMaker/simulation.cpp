@@ -134,6 +134,7 @@ void fifo(int numOfProcesses)
 		tempP = processMap[i];
 		processMap[i].waitTime = tempP.waitTime = overallTime;
 		overallTime = overallTime + tempP.numOfCycles;
+		totalWait = totalWait + processMap[i].waitTime;
 
 		cout << "pid = " << tempP.id << ", cycles = " << tempP.numOfCycles <<", waitTime = " << tempP.waitTime << endl;
 
@@ -141,12 +142,6 @@ void fifo(int numOfProcesses)
 		if(i != numOfProcesses) {
 			overallTime = overallTime + CS;
 		}
-	}
-
-	//get totalWait time
-	for(int i=1; i <= numOfProcesses; i++)
-	{
-		totalWait = totalWait + processMap[i].waitTime;
 	}
 
 	cout << "Average wait time = " << totalWait / numOfProcesses << endl;
