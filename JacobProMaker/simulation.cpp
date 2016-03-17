@@ -121,7 +121,7 @@ void simulate(int numOfProcesses)
 
 }
 
-<<<<<<< HEAD
+
 void sjf()
 {
 	int arrayFinished[50][1]
@@ -162,7 +162,8 @@ void sjf()
 	
 
 	return 0;
-=======
+}
+
 void fifo(int numOfProcesses)
 {
 	process tempP;
@@ -189,6 +190,4 @@ void fifo(int numOfProcesses)
 	cout << "Average wait time = " << totalWait / numOfProcesses << endl;
 	cout << "Total penalty time = " << (numOfProcesses-1) * CS << endl;
 	cout << "------" << endl;
-
->>>>>>> master
 }
