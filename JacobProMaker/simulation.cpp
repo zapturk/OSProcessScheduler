@@ -25,6 +25,7 @@ public:
 	int memorySize;
 	int waitTime;
 	int arrivalTime;
+	int processTimes;
 
 	bool operator<(const process& other) const
 	{
@@ -36,6 +37,8 @@ map <int, process> processMap;
 
 void simulate(int );
 void fifo(int );
+void sjf(int );
+void roundRobin(int );
 
 int main()
 {
@@ -46,6 +49,8 @@ int main()
 
 	simulate(i);
 	fifo(i);
+	roundRobin(i);
+	
 
 	return 0;
 }
@@ -68,10 +73,12 @@ void simulate(int numOfProcesses)
 	 	process p;
 		p.id = i;
 		p.arrivalTime = (i-1) * 50;
+		p.processTimes = 0;
 
 		if(numOfProcesses == 1) {//directly assign the means
 			p.numOfCycles = 6000;
 			p.memorySize = 20;
+
 		} else {
 			//assign rest of total if on last process
 			if(numOfProcesses == i && totalCycles >= MINCYCLES && totalMemory >= MINMEMORY) {
@@ -122,10 +129,12 @@ void simulate(int numOfProcesses)
 }
 
 
-void sjf()
+void sjf(int i)
 {
-	int arrayFinished[50][1]
+	int arrayFinished[50][1];
 	int overallTime = 0, processArrived = 0, fastestProcess;
+	int j = 0;
+	int timeRun;
 
 	while (i < 50)
     {
@@ -157,11 +166,8 @@ void sjf()
 				
 		}
 		overallTime += timeRun;
-		j++
+		j++;
 	}
-	
-
-	return 0;
 }
 
 void fifo(int numOfProcesses)
@@ -189,5 +195,64 @@ void fifo(int numOfProcesses)
 
 	cout << "Average wait time = " << totalWait / numOfProcesses << endl;
 	cout << "Total penalty time = " << (numOfProcesses-1) * CS << endl;
+	cout << "------" << endl;
+}
+
+void roundRobin(int i){
+	int oTime = 0;
+	int x = 1, a = 0, y;
+	int lastP = 1;
+	int cs = 0;
+	int avgWait = 0;
+	while(a != i){
+		if(processMap[x].numOfCycles > 0){
+			if(processMap[x].numOfCycles > 50){
+				if(lastP != x){
+					oTime += 10;
+					cs++;
+				}
+				processMap[x].waitTime = oTime - (processMap[x].arrivalTime + (50 * processMap[x].processTimes));
+				processMap[x].numOfCycles -= 50;
+				oTime += 50;
+				processMap[x].processTimes++;
+				if(x == 50)
+					x = 1;
+				else
+					x++;
+			}
+			else{
+				if(lastP != x){
+					oTime += 10;
+					cs++;
+				}
+				processMap[x].waitTime = oTime - (processMap[x].arrivalTime + (50 * processMap[x].processTimes));
+				oTime += processMap[x].numOfCycles;
+				processMap[x].numOfCycles -= processMap[x].numOfCycles;
+				a++;
+				if(x == 50)
+					x = 1;
+				else
+					x++;
+			}
+		}
+		else{
+			if(x == 50)
+				x = 1;
+			else
+				x++;
+		}
+	}
+
+	cout << endl << "---Round Robin Algorithm---" << endl;
+
+	//cout << "over all time: " << oTime << endl;
+	//cout << "number of context switches: " << cs << endl;
+	
+	for(y = 1; y <= i; y++){
+		cout << "pid = " << processMap[y].id << ", waitTime = " << processMap[y].waitTime << endl;
+		avgWait += processMap[y].waitTime;
+	}
+	cout << "Average wait time = " << avgWait/i << endl;
+	cout << "Total penalty time = " << cs * 10 << endl;
 	cout << "------" << endl;
 }
