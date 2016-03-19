@@ -1,7 +1,7 @@
 /*
  * Jacob Cole
  * simulation.cpp
- * 
+ *
  * Simulates the creation of K processes and gives them an amount of cycles and memory within a specified range
  *
  */
@@ -49,6 +49,7 @@ int main()
 
 	simulate(i);
 	fifo(i);
+	sjf(i);
 	roundRobin(i);
 	
 
@@ -131,43 +132,71 @@ void simulate(int numOfProcesses)
 
 void sjf(int i)
 {
-	int arrayFinished[50][1];
-	int overallTime = 0, processArrived = 0, fastestProcess;
-	int j = 0;
-	int timeRun;
+	int arrayFinished[50][3];
+	int overallTime = 0, processArrived = 0, fastestProcess = 2, j = 1, count = 1, timeRun = 0, totalWait = 0, averageWait = 0;
 
-	while (i < 50)
-    {
-        arrayFinished[i][0] = i;			//I used whiles to populate the 2d array
-        arrayFinished[i][1] = 0;
-        i++;
-    }    
+	cout << endl << "---SJF Algorithm---" << endl;
 
-	while(j < 50)
+	while (count <= i)
 	{
+        	arrayFinished[count][0] = count;			//I used whiles to populate the 2d array
+        	arrayFinished[count][1] = 0;
+        	count++;
+        }
+
+	while(j <= i)
+	{
+		fastestProcess = 2;
 		if (overallTime == 0)
 		{
-			overallTime = processMap[1].numOfCycles;
+			timeRun = processMap[1].numOfCycles;
 			arrayFinished[1][1] == 1;
+			//cout << "pid = " << processMap[1].id << ", waitTime = 0" << ", totalTime = " << processMap[1].numOfCycles << endl;
 		}
 		else if(overallTime != 0)
 		{
 			processArrived = overallTime/50;
-			fastestProcess = 0;
-			for(int k=2; k < processArrived; k++)
+			if (processArrived > i)
 			{
-				if(processMap[k+1].numOfCycles < processMap[k].numOfCycles && arrayFinished[k][1] == 0)
+				processArrived = i;
+			}
+
+			int k = 2;
+			int tempLarge = 15000;
+			while(k <= processArrived)
+			{
+				if(processMap[k].numOfCycles <= tempLarge/* && arrayFinished[k][1] == 0*/)
 				{
-					fastestProcess = processMap[k+1].id;
-				} 
+					if(arrayFinished[k][1] == 0)
+					{
+						fastestProcess = k;
+						tempLarge = processMap[k].numOfCycles;
+						k++;
+					}
+					else
+					{
+						k++;
+					}
+				}
+				else
+				{
+					k++;
+				}
+
 			}
 			timeRun = processMap[fastestProcess].numOfCycles;
-			arrayFinished[fastestProcess][1] == 1;
-				
+			arrayFinished[fastestProcess][1] = 1;
 		}
-		overallTime += timeRun;
+		//waitTime = (overallTime - processMap[fastestProcess].arrivalTime)
+		overallTime = overallTime + timeRun;
+		cout <<"Cycles ran = " << processMap[fastestProcess].numOfCycles  << ", Total Time = " << overallTime << ", Wait time = " << "-=-=-=-=-"  << endl;
+		//cout << "pid = " << processMap[fastestProcess].id << ", waitTime = "  << =-=-=-=-=-=  << ", totalTime = " << overallTime << endl;
 		j++;
 	}
+	//averageWait = totalWait/i;
+	cout << "Average wait time = " << /*averageWait*/ endl;
+	cout << "Total penalty time = " << (i-1)*10 << endl;
+	cout << "------" << endl;
 }
 
 void fifo(int numOfProcesses)
