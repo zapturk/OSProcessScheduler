@@ -133,7 +133,7 @@ void simulate(int numOfProcesses)
 void sjf(int i)
 {
 	int arrayFinished[50][3];
-	int overallTime = 0, processArrived = 0, fastestProcess = 2, j = 1, count = 1, timeRun = 0, totalWait = 0, averageWait = 0;
+	int overallTime = 0, processArrived = 0, fastestProcess = 2, j = 0, count = 1, timeRun = 0, waitTime = 0, averageWait = 0;
 
 	cout << endl << "---SJF Algorithm---" << endl;
 
@@ -144,13 +144,14 @@ void sjf(int i)
         	count++;
         }
 
-	while(j <= i)
+	while(j < i)
 	{
 		fastestProcess = 2;
 		if (overallTime == 0)
 		{
 			timeRun = processMap[1].numOfCycles;
 			arrayFinished[1][1] == 1;
+			fastestProcess = 1;
 			//cout << "pid = " << processMap[1].id << ", waitTime = 0" << ", totalTime = " << processMap[1].numOfCycles << endl;
 		}
 		else if(overallTime != 0)
@@ -187,14 +188,14 @@ void sjf(int i)
 			timeRun = processMap[fastestProcess].numOfCycles;
 			arrayFinished[fastestProcess][1] = 1;
 		}
-		//waitTime = (overallTime - processMap[fastestProcess].arrivalTime)
+		waitTime = (overallTime - (50*j)+(10*j)/*processMap[fastestProcess].arrivalTime*/);
 		overallTime = overallTime + timeRun;
-		cout <<"Cycles ran = " << processMap[fastestProcess].numOfCycles  << ", Total Time = " << overallTime << ", Wait time = " << "-=-=-=-=-"  << endl;
+		cout << "Pid = " << processMap[fastestProcess].id  << ", Cycles ran = " << processMap[fastestProcess].numOfCycles  << ", Total Time = " << overallTime << ", Wait time = " << waitTime  << endl;
 		//cout << "pid = " << processMap[fastestProcess].id << ", waitTime = "  << =-=-=-=-=-=  << ", totalTime = " << overallTime << endl;
 		j++;
 	}
-	//averageWait = totalWait/i;
-	cout << "Average wait time = " << /*averageWait*/ endl;
+	averageWait = waitTime/i;
+	cout << "Average wait time = " << waitTime << endl;
 	cout << "Total penalty time = " << (i-1)*10 << endl;
 	cout << "------" << endl;
 }
