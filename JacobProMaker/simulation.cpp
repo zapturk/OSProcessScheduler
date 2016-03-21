@@ -190,7 +190,7 @@ void sjf(int i)
 		}
 		waitTime = (overallTime - (50*j)+(10*j)/*processMap[fastestProcess].arrivalTime*/);
 		overallTime = overallTime + timeRun;
-		cout << "Pid = " << processMap[fastestProcess].id  << ", Cycles ran = " << processMap[fastestProcess].numOfCycles  << ", Total Time = " << overallTime << ", Wait time = " << waitTime  << endl;
+		cout << "Pid = " << processMap[fastestProcess].id  << ", Cycles = " << processMap[fastestProcess].numOfCycles  << ", Total Time = " << overallTime << ", Wait Time = " << waitTime  << endl;
 		//cout << "pid = " << processMap[fastestProcess].id << ", waitTime = "  << =-=-=-=-=-=  << ", totalTime = " << overallTime << endl;
 		j++;
 	}
@@ -215,7 +215,7 @@ void fifo(int numOfProcesses)
 		overallTime = overallTime + tempP.numOfCycles;
 		totalWait = totalWait + processMap[i].waitTime;
 
-		cout << "pid = " << tempP.id << ", cycles = " << tempP.numOfCycles <<", waitTime = " << tempP.waitTime << endl;
+		cout << "Pid = " << tempP.id << ", Cycles = " << tempP.numOfCycles <<", Wait Time = " << tempP.waitTime << endl;
 
 		//add context switch time to overall if not on last process
 		if(i != numOfProcesses) {
@@ -234,35 +234,53 @@ void roundRobin(int i){
 	int lastP = 1;
 	int cs = 0;
 	int avgWait = 0;
+	int count;
+	int cycl[50];
+
+	for(count = 0; count < i; count++)
+		cycl[count] = processMap[count+1].numOfCycles;
+
 	while(a != i){
 		if(processMap[x].numOfCycles > 0){
 			if(processMap[x].numOfCycles > 50){
 				if(lastP != x){
 					oTime += 10;
 					cs++;
+					cout << "Context Switch number = " << cs << ", Overall Time = " << oTime << endl;
 				}
 				processMap[x].waitTime = oTime - (processMap[x].arrivalTime + (50 * processMap[x].processTimes));
 				processMap[x].numOfCycles -= 50;
 				oTime += 50;
 				processMap[x].processTimes++;
-				if(x == 50)
+				cout << "Pid = " << processMap[x].id << ", Cycles Left = " << processMap[x].numOfCycles << ", Wait Time = " << processMap[y].waitTime << endl;
+				if(x == 50){
+					lastP = 50;
 					x = 1;
-				else
+				}
+				else{
+					lastP = x;
 					x++;
+				}
 			}
 			else{
 				if(lastP != x){
 					oTime += 10;
 					cs++;
+					cout << "Context Switch number = " << cs << ", Overall Time = " << oTime << endl;
 				}
 				processMap[x].waitTime = oTime - (processMap[x].arrivalTime + (50 * processMap[x].processTimes));
 				oTime += processMap[x].numOfCycles;
 				processMap[x].numOfCycles -= processMap[x].numOfCycles;
 				a++;
-				if(x == 50)
+				cout << "Pid = " << processMap[x].id << ", Cycles Left = " << processMap[x].numOfCycles << ", Wait Time = " << processMap[y].waitTime << endl;
+				if(x == 50){
+					lastP = 50;
 					x = 1;
-				else
+				}
+				else{
+					lastP = x;
 					x++;
+				}
 			}
 		}
 		else{
@@ -279,7 +297,7 @@ void roundRobin(int i){
 	//cout << "number of context switches: " << cs << endl;
 	
 	for(y = 1; y <= i; y++){
-		cout << "pid = " << processMap[y].id << ", waitTime = " << processMap[y].waitTime << endl;
+		cout << "Pid = " << processMap[y].id << ", Cycles = " << cycl[y-1] << ", Wait Time = " << processMap[y].waitTime << endl;
 		avgWait += processMap[y].waitTime;
 	}
 	cout << "Average wait time = " << avgWait/i << endl;
