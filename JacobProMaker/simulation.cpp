@@ -132,7 +132,7 @@ void simulate(int numOfProcesses)
 
 void sjf(int i)
 {
-	int arrayFinished[50][3];
+	int arrayFinished[51][3];
 	int overallTime = 0, processArrived = 0, fastestProcess = 2, j = 0, count = 1, timeRun = 0, waitTime = 0, averageWait = 0;
 
 	cout << endl << "---SJF Algorithm---" << endl;
