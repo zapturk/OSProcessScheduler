@@ -252,7 +252,7 @@ void roundRobin(int i){
 				processMap[x].numOfCycles -= 50;
 				oTime += 50;
 				processMap[x].processTimes++;
-				cout << "Pid = " << processMap[x].id << ", Cycles Left = " << processMap[x].numOfCycles << ", Wait Time = " << processMap[y].waitTime << endl;
+				cout << "Pid = " << processMap[x].id << ", Cycles Left = " << processMap[x].numOfCycles << ", Wait Time = " << processMap[x].waitTime << endl;
 				if(x == 50){
 					lastP = 50;
 					x = 1;
@@ -272,7 +272,7 @@ void roundRobin(int i){
 				oTime += processMap[x].numOfCycles;
 				processMap[x].numOfCycles -= processMap[x].numOfCycles;
 				a++;
-				cout << "Pid = " << processMap[x].id << ", Cycles Left = " << processMap[x].numOfCycles << ", Wait Time = " << processMap[y].waitTime << endl;
+				cout << "Pid = " << processMap[x].id << ", Cycles Left = " << processMap[x].numOfCycles << ", Wait Time = " << processMap[x].waitTime << endl;
 				if(x == 50){
 					lastP = 50;
 					x = 1;

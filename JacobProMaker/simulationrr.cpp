@@ -36,6 +36,7 @@ map <int, process> processMap;
 
 void simulate(int );
 void roundRobin(int );
+void rrmp(int );
 
 int main()
 {
@@ -45,9 +46,32 @@ int main()
 	cin >> i;
 
 	simulate(i);
-	roundRobin(i);
+	//roundRobin(i);
+	rrmp(int i);
 
 	return 0;
+}
+
+void rrmp(int i){
+	int oTime = 0;
+	int x = 1, a = 0, y;
+	int lastP = 1;
+	int cs = 0;
+	int avgWait = 0;
+	int numRun = 0;
+	bool thread[4];
+	thread[0] = true;
+	thread[1] = false;
+	thread[2] = false;
+	thread[3] = false;
+
+	while(a != i){
+		if(numRun == 0){
+			processMap[x].numOfCycles -= 50;
+			oTime += 50;
+			cout << "Pid = " << processMap[x].id << ", Cycles Left = " << processMap[x].numOfCycles << ", Wait Time = " << processMap[x].waitTime  << ", Overall Time = " << oTime << endl;
+		}
+	}
 }
 
 void roundRobin(int i){
@@ -67,10 +91,14 @@ void roundRobin(int i){
 				processMap[x].numOfCycles -= 50;
 				oTime += 50;
 				processMap[x].processTimes++;
-				if(x == 50)
+				if(x == 50){
+					lastP = 50;
 					x = 1;
-				else
+				}
+				else{
+					lastP = x;
 					x++;
+				}
 			}
 			else{
 				if(lastP != x){
@@ -81,10 +109,14 @@ void roundRobin(int i){
 				oTime += processMap[x].numOfCycles;
 				processMap[x].numOfCycles -= processMap[x].numOfCycles;
 				a++;
-				if(x == 50)
+				if(x == 50){
+					lastP = 50;
 					x = 1;
-				else
+				}
+				else{
+					lastP = x;
 					x++;
+				}
 			}
 		}
 		else{
