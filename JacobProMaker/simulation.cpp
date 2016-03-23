@@ -46,6 +46,8 @@ void fifo(int );
 void fifoMulti(int );
 void sjf(int );
 void roundRobin(int );
+void roundRobinMulti(int );
+void processEdit(int );
 
 int main()
 {
@@ -61,6 +63,7 @@ int main()
 	fifoMulti(i);
 	sjf(i);
 	roundRobin(i);
+	roundRobinMulti(i);
 	
 
 	return 0;
@@ -432,9 +435,6 @@ void roundRobin(int i){
 	}
 
 	cout << endl << "---Round Robin Algorithm---" << endl;
-
-	//cout << "over all time: " << oTime << endl;
-	//cout << "number of context switches: " << cs << endl;
 	
 	for(y = 1; y <= i; y++){
 		cout << "Pid = " << processMap[y].id << ", Cycles = " << cycl[y-1] << ", Wait Time = " << processMap[y].waitTime << endl;
@@ -443,4 +443,124 @@ void roundRobin(int i){
 	cout << "Average wait time = " << avgWait/i << endl;
 	cout << "Total penalty time = " << cs * 10 << endl;
 	cout << "------" << endl;
+	for(count = 0; count < i; count++)
+		processMap[count+1].numOfCycles = cycl[count];
+}
+
+void roundRobinMulti(int i){
+	int oTime[4] = {0,50,100,150};
+	int x = 1, a = 0, y;
+	int lastP[4];
+	int cs = 0;
+	int wRun = 0;
+	int avgWait = 0;
+	int numRun = 0;
+	int thread[4] = {0,0,0,0};
+	int numCPU = 0;
+	int doneP[i];
+	int tat;
+	int cycl[i];
+
+	for(wRun = 0; wRun < i; wRun++)
+		cycl[wRun] = processMap[wRun+1].numOfCycles; // save the cycles for each process
+
+
+	for(y = 0; y < i; y++)
+		doneP[y] = 0; // set the done state for every process to 0 or not done
+
+	while(a != i){
+
+		if(numRun < i){
+			numRun++;
+			thread[numCPU] = numRun; // set the cpu to a process
+			lastP[numCPU] = numRun;// set the last process on cpu to same number
+			if(wRun > 4){
+				oTime[numCPU] += 10;// if there is a switch in process do a contex switch
+				cs++;
+				//cout << "context switche: " << cs << endl;
+			}
+				
+			if(numCPU == 3)
+				numCPU = 0; // sets the cpu back CPU 0
+			else
+				numCPU++; // gose up one CPU
+		}
+		else if(i > 4){
+			for(numCPU = 0; numCPU < 4; numCPU++){ // after seting up all the process switch every cycle
+				y = lastP[numCPU];
+				if(y + 4 > i)
+					y = numCPU + 1;// check to make sure to call a process on the map
+				else
+					y += 4;
+				tat = 0;
+				while(doneP[y] == 1 && tat < 2){// check for next process that is not done
+					if(y + 4 > i){
+						y = numCPU + 1;
+						tat++;
+					}
+					else
+						y += 4;
+				}
+				if(tat > 1)
+					y = 0;
+				if(y != lastP[numCPU]){// if a new porcess is loaded update the over all time with a context switch 
+					thread[numCPU] = y;// and the last process number for that cpu 
+					lastP[numCPU] = y;
+					oTime[numCPU] += 10;
+					cs++;
+				}
+			}
+		}
+
+
+		for(y = 0; y < 4; y++){
+			cout << "CPU" << y+1 << ": ";
+			if(processMap[thread[y]].numOfCycles > 50){
+				processMap[thread[y]].waitTime = oTime[y] - (processMap[thread[y]].arrivalTime + (50 * processMap[thread[y]].processTimes));
+				processEdit(thread[y]);
+				oTime[y] += 50;
+				cout << " | ";
+				if(y == 3)
+					cout << endl;
+			}
+			else if(thread[y] == 0){
+				cout << "Empty | ";
+				if(y == 3)
+					cout << endl;
+			}
+			else{
+				processMap[thread[y]].waitTime = oTime[y] - (processMap[thread[y]].arrivalTime + (50 * processMap[thread[y]].processTimes));
+				oTime[y] += processMap[thread[y]].numOfCycles;
+				processEdit(thread[y]);
+				doneP[thread[y]] = 1;
+				a++;
+				thread[y] = 0;
+				cout << " | ";
+				if(y == 3)
+					cout << endl;
+			}
+		}
+	}
+	for(y = 1; y <= i; y++){
+		cout << "Pid = " << processMap[y].id << ", Cycles = " << cycl[y-1] << ", Wait Time = " << processMap[y].waitTime << endl;
+		avgWait += processMap[y].waitTime;
+	}
+	cout << "Average wait time = " << avgWait/i << endl;
+	cout << "Total penalty time = " << cs * 10 << endl;
+	cout << "oTime1 = " << oTime[0] << ", oTime2 = " << oTime[1] << ", oTime3 = " << oTime[2] << ", oTime4 = " << oTime[3] << endl;
+	cout << "------" << endl;
+	for(wRun = 0; wRun < i; wRun++)
+		processMap[wRun+1].numOfCycles = cycl[wRun];
+}
+
+void processEdit(int tProcess){
+	if(processMap[tProcess].numOfCycles > 50){
+		processMap[tProcess].numOfCycles -= 50;
+		processMap[tProcess].processTimes++;
+		cout << "Pid = " << processMap[tProcess].id << ", Cycles Left = " << processMap[tProcess].numOfCycles << ", Wait Time = " << processMap[tProcess].waitTime;
+	}
+	else{
+		processMap[tProcess].numOfCycles -= processMap[tProcess].numOfCycles;
+		cout << "Pid = " << processMap[tProcess].id << ", Cycles Left = " << processMap[tProcess].numOfCycles << ", Wait Time = " << processMap[tProcess].waitTime;
+	}
 }

@@ -72,28 +72,28 @@ void rrmp(int i){
 
 		if(numRun < i){
 			numRun++;
-			thread[numCPU] = numRun;
-			lastP[numCPU] = numRun;
+			thread[numCPU] = numRun; // set the cpu to a process
+			lastP[numCPU] = numRun;// set the last process on cpu to same number
 			if(wRun > 4){
-				oTime[numCPU] += 10;
+				oTime[numCPU] += 10;// if there is a switch in process do a contex switch
 				cs++;
 				//cout << "context switche: " << cs << endl;
 			}
 				
 			if(numCPU == 3)
-				numCPU = 0;
+				numCPU = 0; // sets the cpu back CPU 0
 			else
-				numCPU++;
+				numCPU++; // gose up one CPU
 		}
 		else if(i > 4){
-			for(numCPU = 0; numCPU < 4; numCPU++){
+			for(numCPU = 0; numCPU < 4; numCPU++){ // after seting up all the process switch every cycle
 				y = lastP[numCPU];
 				if(y + 4 > i)
-					y = numCPU + 1;
+					y = numCPU + 1;// check to make sure to call a process on the map
 				else
 					y += 4;
 				tat = 0;
-				while(doneP[y] == 1 && tat < 2){
+				while(doneP[y] == 1 && tat < 2){// check for next process that is not done
 					if(y + 4 > i){
 						y = numCPU + 1;
 						tat++;
@@ -103,10 +103,11 @@ void rrmp(int i){
 				}
 				if(tat > 1)
 					y = 0;
-				if(y != lastP[numCPU]){
-					thread[numCPU] = y;
+				if(y != lastP[numCPU]){// if a new porcess is loaded update the over all time with a context switch 
+					thread[numCPU] = y;// and the last process number for that cpu 
 					lastP[numCPU] = y;
 					oTime[numCPU] += 10;
+					cs++;
 				}
 			}
 		}
@@ -121,7 +122,6 @@ void rrmp(int i){
 				cout << " | ";
 				if(y == 3)
 					cout << endl;
-				//system("pause");
 			}
 			else if(thread[y] == 0){
 				cout << "Empty | ";
