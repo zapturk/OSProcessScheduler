@@ -37,7 +37,7 @@ map <int, process> processMap;
 void simulate(int );
 void roundRobin(int );
 void rrmp(int );
-
+void test(int );
 int main()
 {
 	int i;
@@ -47,30 +47,113 @@ int main()
 
 	simulate(i);
 	//roundRobin(i);
-	rrmp(int i);
+	rrmp(i);
 
 	return 0;
 }
 
 void rrmp(int i){
-	int oTime = 0;
+	int oTime[4] = {0,50,100,150};
 	int x = 1, a = 0, y;
-	int lastP = 1;
+	int lastP[4];
 	int cs = 0;
+	int wRun = 0;
 	int avgWait = 0;
 	int numRun = 0;
-	bool thread[4];
-	thread[0] = true;
-	thread[1] = false;
-	thread[2] = false;
-	thread[3] = false;
+	int thread[4] = {0,0,0,0};
+	int numCPU = 0;
+	int doneP[i];
+	int tat;
+
+	for(y = 0; y < i; y++)
+		doneP[y] = 0;
 
 	while(a != i){
-		if(numRun == 0){
-			processMap[x].numOfCycles -= 50;
-			oTime += 50;
-			cout << "Pid = " << processMap[x].id << ", Cycles Left = " << processMap[x].numOfCycles << ", Wait Time = " << processMap[x].waitTime  << ", Overall Time = " << oTime << endl;
+
+		if(numRun < i){
+			numRun++;
+			thread[numCPU] = numRun;
+			lastP[numCPU] = numRun;
+			if(wRun > 4){
+				oTime[numCPU] += 10;
+				cs++;
+				//cout << "context switche: " << cs << endl;
+			}
+				
+			if(numCPU == 3)
+				numCPU = 0;
+			else
+				numCPU++;
 		}
+		else if(i > 4){
+			for(numCPU = 0; numCPU < 4; numCPU++){
+				y = lastP[numCPU];
+				if(y + 4 > i)
+					y = numCPU + 1;
+				else
+					y += 4;
+				tat = 0;
+				while(doneP[y] == 1 && tat < 2){
+					if(y + 4 > i){
+						y = numCPU + 1;
+						tat++;
+					}
+					else
+						y += 4;
+				}
+				if(tat > 1)
+					y = 0;
+				if(y != lastP[numCPU]){
+					thread[numCPU] = y;
+					lastP[numCPU] = y;
+					oTime[numCPU] += 10;
+				}
+			}
+		}
+
+
+		for(y = 0; y < 4; y++){
+			cout << "CPU" << y+1 << ": ";
+			if(processMap[thread[y]].numOfCycles > 50){
+				processMap[thread[y]].waitTime = oTime[y] - (processMap[thread[y]].arrivalTime + (50 * processMap[thread[y]].processTimes));
+				test(thread[y]);
+				oTime[y] += 50;
+				cout << " | ";
+				if(y == 3)
+					cout << endl;
+				//system("pause");
+			}
+			else if(thread[y] == 0){
+				cout << "Empty | ";
+				if(y == 3)
+					cout << endl;
+			}
+			else{
+				processMap[thread[y]].waitTime = oTime[y] - (processMap[thread[y]].arrivalTime + (50 * processMap[thread[y]].processTimes));
+				oTime[y] += processMap[thread[y]].numOfCycles;
+				test(thread[y]);
+				doneP[thread[y]] = 1;
+				a++;
+				thread[y] = 0;
+				cout << " | ";
+				if(y == 3)
+					cout << endl;
+			}
+		}
+		wRun++;
+	}
+	cout << "oTime1 = " << oTime[0] << ", oTime2 = " << oTime[1] << ", oTime3 = " << oTime[2] << ", oTime4 = " << oTime[3] << endl;
+}
+
+void test(int tProcess){
+	if(processMap[tProcess].numOfCycles > 50){
+		processMap[tProcess].numOfCycles -= 50;
+		processMap[tProcess].processTimes++;
+		cout << "Pid = " << processMap[tProcess].id << ", Cycles Left = " << processMap[tProcess].numOfCycles << ", Wait Time = " << processMap[tProcess].waitTime;
+	}
+	else{
+		processMap[tProcess].numOfCycles -= processMap[tProcess].numOfCycles;
+		cout << "Pid = " << processMap[tProcess].id << ", Cycles Left = " << processMap[tProcess].numOfCycles << ", Wait Time = " << processMap[tProcess].waitTime;
 	}
 }
 
@@ -155,6 +238,7 @@ void simulate(int numOfProcesses)
 		p.id = i;
 		p.arrivalTime = (i-1) * 50;
 		p.processTimes = 0;
+		p.waitTime = 0;
 
 		if(numOfProcesses == 1) {//directly assign the means
 			p.numOfCycles = 6000;
