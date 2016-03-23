@@ -446,8 +446,10 @@ void roundRobin(int i){
 	cout << "Average wait time = " << avgWait/i << endl;
 	cout << "Total penalty time = " << cs * 10 << endl;
 	cout << "------" << endl;
-	for(count = 0; count < i; count++)
+	for(count = 0; count < i; count++){
 		processMap[count+1].numOfCycles = cycl[count];
+		processMap[count+1].processTimes = 0;
+	}
 }
 
 void roundRobinMulti(int i){
@@ -517,10 +519,14 @@ void roundRobinMulti(int i){
 
 
 		for(y = 0; y < 4; y++){
+			//cout << "current oTime = " << oTime[y] << ", current arrivalTime = " << processMap[thread[y]].arrivalTime << ", process times = " << processMap[thread[y]].processTimes << "      ";
+
 			cout << "CPU" << y+1 << ": ";
 			if(processMap[thread[y]].numOfCycles > 50){
+				//cout << "current waitTime = " << processMap[thread[y]].waitTime << " ";
 				processMap[thread[y]].waitTime = oTime[y] - (processMap[thread[y]].arrivalTime + (50 * processMap[thread[y]].processTimes));
 				processEdit(thread[y]);
+				processMap[thread[y]].processTimes++;
 				oTime[y] += 50;
 				cout << " | ";
 				if(y == 3)
@@ -548,6 +554,7 @@ void roundRobinMulti(int i){
 		cout << "Pid = " << processMap[y].id << ", Cycles = " << cycl[y-1] << ", Wait Time = " << processMap[y].waitTime << endl;
 		avgWait += processMap[y].waitTime;
 	}
+	cout << endl << "---Round Robin Algorithm Multiprocessor---" << endl;
 	cout << "Average wait time = " << avgWait/i << endl;
 	cout << "Total penalty time = " << cs * 10 << endl;
 	cout << "oTime1 = " << oTime[0] << ", oTime2 = " << oTime[1] << ", oTime3 = " << oTime[2] << ", oTime4 = " << oTime[3] << endl;
@@ -559,7 +566,7 @@ void roundRobinMulti(int i){
 void processEdit(int tProcess){
 	if(processMap[tProcess].numOfCycles > 50){
 		processMap[tProcess].numOfCycles -= 50;
-		processMap[tProcess].processTimes++;
+		//processMap[tProcess].processTimes++;
 		cout << "Pid = " << processMap[tProcess].id << ", Cycles Left = " << processMap[tProcess].numOfCycles << ", Wait Time = " << processMap[tProcess].waitTime;
 	}
 	else{
