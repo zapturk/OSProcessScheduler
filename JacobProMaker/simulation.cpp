@@ -56,6 +56,7 @@ void simulate(int );
 void fifo(int );
 void fifoMulti(int );
 void sjf(int );
+void sjfMulti(int i);
 void roundRobin(int );
 void roundRobinMulti(int );
 void processEdit(int );
@@ -73,6 +74,7 @@ int main()
 	fifo(i);
 	fifoMulti(i);
 	sjf(i);
+	sjfMulti(i);
 	roundRobin(i);
 	roundRobinMulti(i);
 	
@@ -179,17 +181,17 @@ void simulate(int numOfProcesses)
 
 void sjf(int i)
 {
-	int arrayFinished[51][3];
-	int overallTime = 0, processArrived = 0, fastestProcess = 2, j = 0, count = 1, timeRun = 0, waitTime = 0, averageWait = 0;
+	int arrayFinished[51][2];
+	int overallTime = 0, processArrived = 0, fastestProcess = 2, j = 0, count = 1, timeRun = 0, waitTime = 0, totalWait = 0, averageWait = 0;
 
 	cout << endl << "---SJF Algorithm---" << endl;
 
 	while (count <= i)
 	{
-			arrayFinished[count][0] = count;			//I used whiles to populate the 2d array
-			arrayFinished[count][1] = 0;
-			count++;
-		}
+        	arrayFinished[count][0] = count;			//I used whiles to populate the 2d array
+        	arrayFinished[count][1] = 0;
+        	count++;
+        }
 
 	while(j < i)
 	{
@@ -197,9 +199,7 @@ void sjf(int i)
 		if (overallTime == 0)
 		{
 			timeRun = processMap[1].numOfCycles;
-			arrayFinished[1][1] == 1;
 			fastestProcess = 1;
-			//cout << "pid = " << processMap[1].id << ", waitTime = 0" << ", totalTime = " << processMap[1].numOfCycles << endl;
 		}
 		else if(overallTime != 0)
 		{
@@ -213,18 +213,11 @@ void sjf(int i)
 			int tempLarge = 15000;
 			while(k <= processArrived)
 			{
-				if(processMap[k].numOfCycles <= tempLarge/* && arrayFinished[k][1] == 0*/)
+				if(processMap[k].numOfCycles <= tempLarge && arrayFinished[k][1] == 0)
 				{
-					if(arrayFinished[k][1] == 0)
-					{
-						fastestProcess = k;
-						tempLarge = processMap[k].numOfCycles;
-						k++;
-					}
-					else
-					{
-						k++;
-					}
+					fastestProcess = k;
+					tempLarge = processMap[k].numOfCycles;
+					k++;
 				}
 				else
 				{
@@ -235,15 +228,99 @@ void sjf(int i)
 			timeRun = processMap[fastestProcess].numOfCycles;
 			arrayFinished[fastestProcess][1] = 1;
 		}
-		waitTime = (overallTime - (50*j)+(10*j)/*processMap[fastestProcess].arrivalTime*/);
+		waitTime = (overallTime - (50*j)+(10*j));
+		totalWait = totalWait + waitTime;
 		overallTime = overallTime + timeRun;
-		cout << "Pid = " << processMap[fastestProcess].id  << ", Cycles = " << processMap[fastestProcess].numOfCycles  << ", Total Time = " << overallTime << ", Wait Time = " << waitTime  << endl;
-		//cout << "pid = " << processMap[fastestProcess].id << ", waitTime = "  << =-=-=-=-=-=  << ", totalTime = " << overallTime << endl;
+			if(j != 0)
+			{
+				overallTime = overallTime+10;
+			}
+		cout << "Pid = " << processMap[fastestProcess].id  << ", 	  Cycles = " << processMap[fastestProcess].numOfCycles  << ", 	Total Time = " << overallTime << ", 	Wait Time = " << waitTime  << endl;
 		j++;
 	}
-	averageWait = waitTime/i;
-	cout << "Average wait time = " << waitTime << endl;
+	averageWait = totalWait/i;
+	cout << "Average wait time = " << averageWait << endl;
 	cout << "Total penalty time = " << (i-1)*10 << endl;
+	cout << "------" << endl;
+}
+
+void sjfMulti(int i)
+{
+	int arrayFinished[51][2], P[4] = {0};
+	int overallTime = 0, processArrived = 0, fastestProcess = 2, j = 4, count = 0, timeRun = 0, waitTime = 0, totalWait = 0, averageWait = 0, P1Wait = 0, P2Wait = 0, P3Wait = 0, P4Wait = 0;
+	int optimalProcessor = 1, freeProcessor = 1, start = 0;
+
+	cout << endl << "---SJF Multi Processors Algorithm---" << endl;
+
+	while (count <= i)
+	{
+        	arrayFinished[count][0] = count;			//I used whiles to populate the 2d array
+        	arrayFinished[count][1] = 0;
+        	count++;
+        }
+
+	while(j <= i)//j=4  goes from 4 to 50. one run will be the initial 4 processors being filled. 
+	{		//That means it will technically run the else loop from 5->50
+		fastestProcess = 5;
+		if (start == 0)
+		{
+			for(count = 0; count < 4; count++)
+			{
+				if(processMap[count+1].numOfCycles < processMap[count+2].numOfCycles)
+				{
+					fastestProcess = count;
+				}
+				P[count] = processMap[count+1].numOfCycles + (count * 50);
+				cout << "Processor = "<< count+1 << ", 		Pid = " << count+1 << ", 	Cycles = " << processMap[count+1].numOfCycles << ",    	 Total Time = " << P[count] << ",	 	Wait Time = " << 0 << endl;
+			}
+		}
+		else
+		{
+			int tempCheck = 1500000000;
+			for(count = 0; count < 4; count++)
+			{
+				//cout << P[count] << endl;
+				if(P[count] < tempCheck)
+				{
+					//optimalProcessor = P[count]; ////////////////////This is the amount of cycles on the smallest processor
+					optimalProcessor = count+1;   //this is which processor has the lowest cycle count at the beginning
+					processArrived = (P[count] / 50);
+					if(processArrived > i)
+					{
+						processArrived = i;
+					}
+					tempCheck = P[count];
+				}
+			}
+			int k = 5;
+			int tempLarge = 15000;
+			while(k <= processArrived)
+			{
+				if(processMap[k].numOfCycles <= tempLarge && arrayFinished[k][1] == 0)
+                                {
+                                        fastestProcess = k;
+                                        tempLarge = processMap[k].numOfCycles;
+                                        k++;
+                                }
+                                else
+                                {
+                                        k++;
+                                }
+			}
+			waitTime = (P[optimalProcessor-1] - ((fastestProcess-1)*50));
+			P[optimalProcessor-1] = P[optimalProcessor-1] + processMap[fastestProcess].numOfCycles + 10;
+			arrayFinished[fastestProcess][1] = 1;
+			cout << "Processor = " << optimalProcessor << ", 		Pid = " << fastestProcess << ", 	Cycles = " << processMap[fastestProcess].numOfCycles  <<",		 Total Time = " << P[optimalProcessor-1] << ", 		Wait Time = " << waitTime << endl;
+			//cout << "Processor 1: " << P[0] << "	Processor 2: " << P[1] << "	Processor 3: " << P[2] << "	Processor 4: " << P[3] << endl << endl;
+		}
+		start = 1;
+		totalWait = totalWait + waitTime;
+		j++;
+	}
+	averageWait = totalWait/i;
+	cout << "TOTAL CYCLES on 	Processor 1: " << P[0] << " 	 	Processor 2: " << P[1] << "     	Processor 3: " << P[2] << "    		 Processor 4: " << P[3] << endl;
+	cout << "Average wait time = " << averageWait << endl;
+	cout << "Total penalty time = " << (i-4)*10 << endl;
 	cout << "------" << endl;
 }
 
