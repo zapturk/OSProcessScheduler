@@ -49,6 +49,7 @@ public:
 map <int, process> processMap;
 
 int processorInUse[51][5];//if using, call clearProcessors() when your function is done
+int setNum = 1;
 
 void clearProcessors();
 //int checkProcessorsInUse();
@@ -75,8 +76,16 @@ int main()
 	sjf(i);
 	roundRobin(i);
 	roundRobinMulti(i);
-	
 
+	processMap.clear();//clear map for next set of processes
+
+	simulate(i);
+	fifo(i);
+	fifoMulti(i);
+	sjf(i);
+	roundRobin(i);
+	roundRobinMulti(i);
+	
 	return 0;
 }
 
@@ -113,7 +122,13 @@ void simulate(int numOfProcesses)
 	int calcAvgCycles = 0;
 	int calcAvgMemory = 0;
 
-	srand(time(NULL));
+	if(setNum == 1) 
+		srand(time(NULL));
+		setNum++;
+	/*}
+	else {
+		srand(3);
+	}*/
 
 	for(int i=1; i <= numOfProcesses; i++)
 	{
