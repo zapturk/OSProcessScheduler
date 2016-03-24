@@ -85,6 +85,7 @@ int main()
 	fifo(i);
 	fifoMulti(i);
 	sjf(i);
+	sjfMulti(i);
 	roundRobin(i);
 	roundRobinMulti(i);
 	
@@ -250,7 +251,7 @@ void sjf(int i)
 			{
 				overallTime = overallTime+10;
 			}
-		cout << "Pid = " << processMap[fastestProcess].id  << ", 	  Cycles = " << processMap[fastestProcess].numOfCycles  << ", 	Total Time = " << overallTime << ", 	Wait Time = " << waitTime  << endl;
+		cout << "Pid = " << processMap[fastestProcess].id  << ", Cycles = " << processMap[fastestProcess].numOfCycles  << ", Wait Time = " << waitTime  << endl;
 		j++;
 	}
 	averageWait = totalWait/i;
@@ -286,7 +287,9 @@ void sjfMulti(int i)
 					fastestProcess = count;
 				}
 				P[count] = processMap[count+1].numOfCycles + (count * 50);
-				cout << "Processor = "<< count+1 << ", 		Pid = " << count+1 << ", 	Cycles = " << processMap[count+1].numOfCycles << ",    	 Total Time = " << P[count] << ",	 	Wait Time = " << 0 << endl;
+				cout << "| CPU"<< count+1 << ": Pid = " << count+1 << ", Cycles = " << processMap[count+1].numOfCycles <<  ", Wait Time = " << 0 << " ";
+				if(count == 3)
+					cout << endl;
 			}
 		}
 		else
@@ -325,17 +328,18 @@ void sjfMulti(int i)
 			waitTime = (P[optimalProcessor-1] - ((fastestProcess-1)*50));
 			P[optimalProcessor-1] = P[optimalProcessor-1] + processMap[fastestProcess].numOfCycles + 10;
 			arrayFinished[fastestProcess][1] = 1;
-			cout << "Processor = " << optimalProcessor << ", 		Pid = " << fastestProcess << ", 	Cycles = " << processMap[fastestProcess].numOfCycles  <<",		 Total Time = " << P[optimalProcessor-1] << ", 		Wait Time = " << waitTime << endl;
+			cout << "| CPU" << optimalProcessor << ": Pid = " << fastestProcess << ", Cycles = " << processMap[fastestProcess].numOfCycles  <<", Wait Time = " << waitTime << endl;
 			//cout << "Processor 1: " << P[0] << "	Processor 2: " << P[1] << "	Processor 3: " << P[2] << "	Processor 4: " << P[3] << endl << endl;
 		}
 		start = 1;
 		totalWait = totalWait + waitTime;
 		j++;
 	}
-	averageWait = totalWait/i;
-	cout << "TOTAL CYCLES on 	Processor 1: " << P[0] << " 	 	Processor 2: " << P[1] << "     	Processor 3: " << P[2] << "    		 Processor 4: " << P[3] << endl;
+	
 	cout << "Average wait time = " << averageWait << endl;
 	cout << "Total penalty time = " << (i-4)*10 << endl;
+	averageWait = totalWait/i;
+	cout << "TOTAL CYCLES on Processor 1 = " << P[0] << ", Processor 2 = " << P[1] << ", Processor 3 = " << P[2] << ", Processor 4 = " << P[3] << endl;
 	cout << "------" << endl;
 }
 
@@ -475,6 +479,8 @@ void roundRobin(int i){
 	int count;
 	int cycl[50];
 
+	cout << endl << "---Round Robin Algorithm---" << endl;
+
 	for(count = 0; count < i; count++)
 		cycl[count] = processMap[count+1].numOfCycles; // keeping a record of all the cycle numbers
 
@@ -529,7 +535,7 @@ void roundRobin(int i){
 		}
 	}
 
-	cout << endl << "---Round Robin Algorithm---" << endl;
+	cout << endl;
 	
 	for(y = 1; y <= i; y++){
 		cout << "Pid = " << processMap[y].id << ", Cycles = " << cycl[y-1] << ", Wait Time = " << processMap[y].waitTime << endl;
@@ -557,6 +563,8 @@ void roundRobinMulti(int i){
 	int doneP[i];
 	int tat;
 	int cycl[i];
+
+	cout << endl << "---Round Robin Algorithm Multiprocessor---" << endl;
 
 	for(wRun = 0; wRun < i; wRun++)
 		cycl[wRun] = processMap[wRun+1].numOfCycles; // save the cycles for each process
@@ -611,7 +619,7 @@ void roundRobinMulti(int i){
 
 
 		for(y = 0; y < 4; y++){
-			cout << "CPU" << y+1 << ": ";
+			cout << "| CPU" << y+1 << ": ";
 			if(processMap[thread[y]].numOfCycles > 50){
 				processMap[thread[y]].waitTime = oTime[y] - (processMap[thread[y]].arrivalTime + (50 * processMap[thread[y]].processTimes));
 				processEdit(thread[y]);// edit the process cycle time 
@@ -639,14 +647,16 @@ void roundRobinMulti(int i){
 			}
 		}
 	}
+
+	cout << endl;
 	for(y = 1; y <= i; y++){
 		cout << "Pid = " << processMap[y].id << ", Cycles = " << cycl[y-1] << ", Wait Time = " << processMap[y].waitTime << endl;
 		avgWait += processMap[y].waitTime;// calc the ave wait time
 	}
-	cout << endl << "---Round Robin Algorithm Multiprocessor---" << endl;
-	cout << "Average wait time = " << avgWait/i << endl;
+
 	cout << "Total penalty time = " << cs * 10 << endl;
-	cout << "oTime1 = " << oTime[0] << ", oTime2 = " << oTime[1] << ", oTime3 = " << oTime[2] << ", oTime4 = " << oTime[3] << endl;
+	cout << "Average wait time = " << avgWait/i << endl;
+	cout << "TOTAL CYCLES on Processor 1 = " << oTime[0] << ", Processor 2 = " << oTime[1] << ", Processor 3 = " << oTime[2] << ", Processor 4 = " << oTime[3] << endl;
 	cout << "------" << endl;
 	for(wRun = 0; wRun < i; wRun++)
 		processMap[wRun+1].numOfCycles = cycl[wRun]; // reset all of the cycle time
