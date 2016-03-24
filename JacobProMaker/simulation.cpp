@@ -1,5 +1,5 @@
 /*
- * Jacob Cole
+ * Jacob Cole, Scott McKeefer, Mark Doggendorf
  * simulation.cpp
  *
  * Simulates the creation of K processes and gives them an amount of cycles and memory within a specified range
@@ -18,7 +18,7 @@ const int MINCYCLES = 1000;
 const int MAXCYCLES = 11000;
 const int MINMEMORY = 1;
 const int MAXMEMORY = 100;
-const int CS = 10;
+const int CS = 10;//context switch penalty
 
 class process
 {
@@ -52,7 +52,6 @@ int processorInUse[51][5];//if using, call clearProcessors() when your function 
 int setNum = 1;
 
 void clearProcessors();
-//int checkProcessorsInUse();
 void simulate(int );
 void fifo(int );
 void fifoMulti(int );
@@ -64,13 +63,11 @@ void processEdit(int );
 
 int main()
 {
-	int i;
-
-	cout << "Enter number of processes to simulate: ";
-	cin >> i;
+	int i = 50;//use 50 processes
 
 	clearProcessors();
 
+	//run of first set of processes
 	simulate(i);
 	fifo(i);
 	fifoMulti(i);
@@ -81,6 +78,7 @@ int main()
 
 	processMap.clear();//clear map for next set of processes
 
+	//run on 2nd set of processes
 	simulate(i);
 	fifo(i);
 	fifoMulti(i);
@@ -91,6 +89,7 @@ int main()
 	return 0;
 }
 
+//reset processor array to empty
 void clearProcessors() 
 {
 	for(int i=1; i <= 50; i++) {
@@ -99,20 +98,8 @@ void clearProcessors()
 		}
 	}	
 }
-/*
-int checkProcessorsInUse(int iteration)
-{
-	for(int j=1; j <= 4; j++)
-	{
-		if(processorInUse[iteration][j] == 0) {
-			return j;//return processor number available
-		}
-	}
 
-	return 0;
-}
-*/
-
+//generate set of n processes
 void simulate(int numOfProcesses)
 {
 	cout << "Simulating creation of " << numOfProcesses << " processes..." << endl;
@@ -347,6 +334,7 @@ void fifo(int numOfProcesses)
 
 	cout << endl << "---FIFO Algorithm---" << endl;
 
+	//literally go in order from 1 to 50
 	for(int i=1; i <= numOfProcesses; i++)
 	{
 		tempP = processMap[i];
@@ -367,12 +355,13 @@ void fifo(int numOfProcesses)
 	cout << "------" << endl;
 }
 
+//each processor is basically goig to run FIFO itself
 void fifoMulti(int numOfProcesses)
 {
 	int totalWait1 = 0, totalWait2 = 0, totalWait3 = 0, totalWait4 = 0;
 	int overallTime1 = 0, overallTime2 = 0, overallTime3 = 0, overallTime4 = 0;
 	int pid = 0;
-	int numRows = (ceil((float)numOfProcesses / 4.0f));
+	int numRows = (ceil((float)numOfProcesses / 4.0f));//for printing purposes
 	int numOfProcessesRanInCPU[5] = {0,0,0,0,0};
 	map <int, process> copyMap = processMap;//make a copy so we can change values without affecting other algorithms
 
@@ -389,6 +378,7 @@ void fifoMulti(int numOfProcesses)
 		totalWait1 = totalWait1 + copyMap[pid].waitTime;
 		cout << "| CPU1: "  << "pid= " << processorInUse[i][1] << ", Cycles= " << copyMap[processorInUse[i][1]].numOfCycles << ", WaitTime=" << copyMap[processorInUse[i][1]].waitTime;
 		
+		//in case CPU1 is the last one to print
 		if(pid == numOfProcesses) {
 			cout << " | " << endl;
 		}
@@ -396,8 +386,12 @@ void fifoMulti(int numOfProcesses)
 		//only add to other processors if not on the last process
 		if(pid != numOfProcesses) {
 
+			//here because we don't want to add a CS if CPU1 is done
+			//same reasoning for follwing CS's
 			overallTime1 = overallTime1 + CS;
 
+			//don't calculate if on first iteration.
+			//same reasoning for other processors
 			if(i != 1) {
 				//processor2
 				processorInUse[i][2] = copyMap[++pid].id;
@@ -406,9 +400,7 @@ void fifoMulti(int numOfProcesses)
 				if(copyMap[pid].waitTime < 0)//prevent time from being negative. being negative means it hasn't arrived
 					copyMap[pid].waitTime = 0;
 				overallTime2 = overallTime2 + copyMap[pid].numOfCycles;
-				//cout << totalWait2 << endl;//if i don't print this, totalWait2 gets huge random value. not sure why.
 				totalWait2 = totalWait2 + copyMap[pid].waitTime;
-
 			}
 			cout << " | CPU2: "  << "pid= " << processorInUse[i][2] << ", Cycles= " << copyMap[processorInUse[i][2]].numOfCycles << ", WaitTime=" << copyMap[processorInUse[i][2]].waitTime;
 
@@ -453,10 +445,12 @@ void fifoMulti(int numOfProcesses)
 	int averageWaitCPU3 = totalWait3 / numOfProcessesRanInCPU[3];
 	int averageWaitCPU4 = totalWait4 / numOfProcessesRanInCPU[4];
 
+	/* not using to be uniform across all algorithms. kind of not needed anyways.
 	cout << "Average wait time per process for CPU1 = " << averageWaitCPU1 << endl;
 	cout << "Average wait time per process for CPU2 = " << averageWaitCPU2 << endl;
 	cout << "Average wait time per process for CPU3 = " << averageWaitCPU3 << endl;
 	cout << "Average wait time per process for CPU4 = " << averageWaitCPU4 << endl;
+	*/	
 
 	cout << "Total penalty time = " << (numOfProcesses-4) * CS << endl;
 	cout << "Average wait time per process of the entire system = " 
