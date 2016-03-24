@@ -213,12 +213,12 @@ void sjf(int i)
 		fastestProcess = 2;
 		if (overallTime == 0)
 		{
-			timeRun = processMap[1].numOfCycles;
+			timeRun = processMap[1].numOfCycles;   //calculate the first process runtime
 			fastestProcess = 1;
 		}
 		else if(overallTime != 0)
 		{
-			processArrived = overallTime/50;
+			processArrived = overallTime/50;		//Calculate the amount of arrived proccesses
 			if (processArrived > i)
 			{
 				processArrived = i;
@@ -228,10 +228,10 @@ void sjf(int i)
 			int tempLarge = 15000;
 			while(k <= processArrived)
 			{
-				if(processMap[k].numOfCycles <= tempLarge && arrayFinished[k][1] == 0)
+				if(processMap[k].numOfCycles <= tempLarge && arrayFinished[k][1] == 0)   //find the smallest of the arrived proccesses
 				{
 					fastestProcess = k;
-					tempLarge = processMap[k].numOfCycles;
+					tempLarge = processMap[k].numOfCycles;		
 					k++;
 				}
 				else
@@ -240,11 +240,11 @@ void sjf(int i)
 				}
 
 			}
-			timeRun = processMap[fastestProcess].numOfCycles;
+			timeRun = processMap[fastestProcess].numOfCycles;		//accumulate runtime of proccesses
 			arrayFinished[fastestProcess][1] = 1;
 		}
 		waitTime = (overallTime - (50*j)+(10*j));
-		totalWait = totalWait + waitTime;
+		totalWait = totalWait + waitTime;				//calculate averages
 		overallTime = overallTime + timeRun;
 			if(j != 0)
 			{
@@ -313,7 +313,7 @@ void sjfMulti(int i)
 			{
 				if(processMap[k].numOfCycles <= tempLarge && arrayFinished[k][1] == 0)
                                 {
-                                        fastestProcess = k;
+                                        fastestProcess = k;				//check if process is smallest and has not been used
                                         tempLarge = processMap[k].numOfCycles;
                                         k++;
                                 }
