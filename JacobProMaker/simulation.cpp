@@ -476,27 +476,27 @@ void roundRobin(int i){
 	int cycl[50];
 
 	for(count = 0; count < i; count++)
-		cycl[count] = processMap[count+1].numOfCycles;
+		cycl[count] = processMap[count+1].numOfCycles; // keeping a record of all the cycle numbers
 
 	while(a != i){
 		if(processMap[x].numOfCycles > 0){
-			if(processMap[x].numOfCycles > 50){
-				if(lastP != x){
-					oTime += 10;
+			if(processMap[x].numOfCycles > 50){ // if the pocess is not done and it is has more than 50 left
+				if(lastP != x){// if its a new process do a context switch first
+					oTime += 10;// add time to over all
 					cs++;
 					cout << "Context Switch number = " << cs << ", Overall Time = " << oTime << endl;
 				}
-				processMap[x].waitTime = oTime - (processMap[x].arrivalTime + (50 * processMap[x].processTimes));
-				processMap[x].numOfCycles -= 50;
-				oTime += 50;
-				processMap[x].processTimes++;
+				processMap[x].waitTime = oTime - (processMap[x].arrivalTime + (50 * processMap[x].processTimes));// get wait time
+				processMap[x].numOfCycles -= 50;// take off cycles
+				oTime += 50; // add time to over all time
+				processMap[x].processTimes++; // updating the number of time the process has been worked on
 				cout << "Pid = " << processMap[x].id << ", Cycles Left = " << processMap[x].numOfCycles << ", Wait Time = " << processMap[x].waitTime << endl;
 				if(x == 50){
-					lastP = 50;
+					lastP = 50; // go back to first process if at last
 					x = 1;
 				}
 				else{
-					lastP = x;
+					lastP = x;// go up by one process
 					x++;
 				}
 			}
@@ -506,9 +506,9 @@ void roundRobin(int i){
 					cs++;
 					cout << "Context Switch number = " << cs << ", Overall Time = " << oTime << endl;
 				}
-				processMap[x].waitTime = oTime - (processMap[x].arrivalTime + (50 * processMap[x].processTimes));
-				oTime += processMap[x].numOfCycles;
-				processMap[x].numOfCycles -= processMap[x].numOfCycles;
+				processMap[x].waitTime = oTime - (processMap[x].arrivalTime + (50 * processMap[x].processTimes)); // set the wait time
+				oTime += processMap[x].numOfCycles;// updat the over all time
+				processMap[x].numOfCycles -= processMap[x].numOfCycles;// set the cycle to 0
 				a++;
 				cout << "Pid = " << processMap[x].id << ", Cycles Left = " << processMap[x].numOfCycles << ", Wait Time = " << processMap[x].waitTime << endl;
 				if(x == 50){
@@ -593,7 +593,7 @@ void roundRobinMulti(int i){
 				while(doneP[y] == 1 && tat < 2){// check for next process that is not done
 					if(y + 4 > i){
 						y = numCPU + 1;
-						tat++;
+						tat++;// cheack for looping more that one time
 					}
 					else
 						y += 4;
@@ -603,7 +603,7 @@ void roundRobinMulti(int i){
 				if(y != lastP[numCPU]){// if a new porcess is loaded update the over all time with a context switch 
 					thread[numCPU] = y;// and the last process number for that cpu 
 					lastP[numCPU] = y;
-					oTime[numCPU] += 10;
+					oTime[numCPU] += 10;// adding the context switch
 					cs++;
 				}
 			}
@@ -611,15 +611,12 @@ void roundRobinMulti(int i){
 
 
 		for(y = 0; y < 4; y++){
-			//cout << "current oTime = " << oTime[y] << ", current arrivalTime = " << processMap[thread[y]].arrivalTime << ", process times = " << processMap[thread[y]].processTimes << "      ";
-
 			cout << "CPU" << y+1 << ": ";
 			if(processMap[thread[y]].numOfCycles > 50){
-				//cout << "current waitTime = " << processMap[thread[y]].waitTime << " ";
 				processMap[thread[y]].waitTime = oTime[y] - (processMap[thread[y]].arrivalTime + (50 * processMap[thread[y]].processTimes));
-				processEdit(thread[y]);
-				processMap[thread[y]].processTimes++;
-				oTime[y] += 50;
+				processEdit(thread[y]);// edit the process cycle time 
+				processMap[thread[y]].processTimes++; // updating the number of time the process has been worked on
+				oTime[y] += 50; // updating the processor over all time
 				cout << " | ";
 				if(y == 3)
 					cout << endl;
@@ -632,8 +629,8 @@ void roundRobinMulti(int i){
 			else{
 				processMap[thread[y]].waitTime = oTime[y] - (processMap[thread[y]].arrivalTime + (50 * processMap[thread[y]].processTimes));
 				oTime[y] += processMap[thread[y]].numOfCycles;
-				processEdit(thread[y]);
-				doneP[thread[y]] = 1;
+				processEdit(thread[y]);// edit the process cycle time 
+				doneP[thread[y]] = 1; // set the porcess a done
 				a++;
 				thread[y] = 0;
 				cout << " | ";
@@ -644,7 +641,7 @@ void roundRobinMulti(int i){
 	}
 	for(y = 1; y <= i; y++){
 		cout << "Pid = " << processMap[y].id << ", Cycles = " << cycl[y-1] << ", Wait Time = " << processMap[y].waitTime << endl;
-		avgWait += processMap[y].waitTime;
+		avgWait += processMap[y].waitTime;// calc the ave wait time
 	}
 	cout << endl << "---Round Robin Algorithm Multiprocessor---" << endl;
 	cout << "Average wait time = " << avgWait/i << endl;
@@ -652,17 +649,16 @@ void roundRobinMulti(int i){
 	cout << "oTime1 = " << oTime[0] << ", oTime2 = " << oTime[1] << ", oTime3 = " << oTime[2] << ", oTime4 = " << oTime[3] << endl;
 	cout << "------" << endl;
 	for(wRun = 0; wRun < i; wRun++)
-		processMap[wRun+1].numOfCycles = cycl[wRun];
+		processMap[wRun+1].numOfCycles = cycl[wRun]; // reset all of the cycle time
 }
 
 void processEdit(int tProcess){
 	if(processMap[tProcess].numOfCycles > 50){
-		processMap[tProcess].numOfCycles -= 50;
-		//processMap[tProcess].processTimes++;
+		processMap[tProcess].numOfCycles -= 50; // take 50 away from the cycle tiem
 		cout << "Pid = " << processMap[tProcess].id << ", Cycles Left = " << processMap[tProcess].numOfCycles << ", Wait Time = " << processMap[tProcess].waitTime;
 	}
 	else{
-		processMap[tProcess].numOfCycles -= processMap[tProcess].numOfCycles;
+		processMap[tProcess].numOfCycles -= processMap[tProcess].numOfCycles; // set the cycle time to zero
 		cout << "Pid = " << processMap[tProcess].id << ", Cycles Left = " << processMap[tProcess].numOfCycles << ", Wait Time = " << processMap[tProcess].waitTime;
 	}
 }
