@@ -1,0 +1,4 @@
+-To compile the program type 'g++ simulation.cpp'
+-Run it by typing './a.out'
+-The program will output 2 runs of each algorithm on a single processor and a multicore processor
+-NOTE: This output will be very long so I suggest redirecting stdout to a file. Also to correctly see the MultiCore parts, you should widen your editor so everything fits on one line instead of wordwrapping.
