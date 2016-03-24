@@ -335,10 +335,9 @@ void sjfMulti(int i)
 		totalWait = totalWait + waitTime;
 		j++;
 	}
-	
+	averageWait = totalWait/i;
 	cout << "Average wait time = " << averageWait << endl;
 	cout << "Total penalty time = " << (i-4)*10 << endl;
-	averageWait = totalWait/i;
 	cout << "TOTAL CYCLES on Processor 1 = " << P[0] << ", Processor 2 = " << P[1] << ", Processor 3 = " << P[2] << ", Processor 4 = " << P[3] << endl;
 	cout << "------" << endl;
 }
