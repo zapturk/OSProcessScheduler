@@ -63,6 +63,9 @@ void roundRobinMulti(int );
 void processEdit(int );
 int getMemSize(int );
 void sysMF(int );
+void ourMallocAndFree(int );
+
+int ourFree(int , int);
 
 
 int main()
@@ -74,6 +77,7 @@ int main()
 	//run of first set of processes
 	simulate(i);
 	sysMF(i);
+	ourMallocAndFree(i);
 
 	//fifo(i);
 	//fifoMulti(i);
@@ -195,6 +199,18 @@ int getMemSize(int numOfProcesses){
 		total += processMap[num].memorySize;
 	}
 	return(total);
+}
+
+void ourMallocAndFree(int numOfProcesses)
+{
+	clock_t start, finish;
+	int num;
+	int memoryBlockLimit = 20000;//20MB converted to KB
+	start = clock();
+
+	for(num = 0; num <= numOfProcesses; num++){
+		;
+	}
 }
 
 void sysMF(int numOfProcesses){
