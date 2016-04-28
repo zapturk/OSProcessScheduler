@@ -210,13 +210,15 @@ void ourMallocAndFree(int numOfProcesses)
 	int memoryBlockLimit = 20000;//20MB converted to KB
 	int startAvail = -1;
 	int endAvail = -1;
-	start = clock();
 
 	//initialize all 20MB as free
 	for(int i=0; i < 20000; i++){
 		memoryBlock[i] = 0;
 	}
 
+	cout << endl << "----- Part 2 -----" << endl;
+
+	start = clock();
 	for(num = 1; num <= numOfProcesses; num++){
 
 		//start our malloc
