@@ -232,30 +232,37 @@ void ourMallocAndFree(int numOfProcesses)
 				}
 				if(blockSize >= processMap[num].memorySize){
 					endAvail = i;
+					cout << "Process " << num << " has been malloced." << endl;
 					break;
 				}
 			}		
-
 		}
 
-		cout << "startAvail =" << startAvail << endl;
-		cout << "endAvail = " << endAvail << endl;
+		//cout << "startAvail =" << startAvail << endl;
+		//cout << "endAvail = " << endAvail << endl;
 		//allocate block range
 		for(int i=startAvail; i <= endAvail; i++){
 			memoryBlock[i] = 1;
 		}
-
-		//reset
-		startAvail = -1;
-		endAvail = -1;
-		blockSize = 0;
 		//end our malloc
 
 
 
 		//start our free
+		for(int i=startAvail; i <= endAvail; i++) {
+			memoryBlock[i] = 0;
+		}
+		cout << "\tProcess " << num << "has been freed." << endl;
 		//end our free
+
+		//reset
+		startAvail = -1;
+		endAvail = -1;
+		blockSize = 0;
 	}
+
+	finish = clock();
+	cout << "Using custom malloc/free: " << (double)(finish-start) / CLOCKS_PER_SEC << endl;
 }
 
 void sysMF(int numOfProcesses){
