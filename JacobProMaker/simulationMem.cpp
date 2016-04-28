@@ -212,6 +212,7 @@ void ourMallocAndFree(int numOfProcesses)
 	int endAvail = -1;
 	start = clock();
 
+	//initialize all 20MB as free
 	for(int i=0; i < 20000; i++){
 		memoryBlock[i] = 0;
 	}
@@ -222,7 +223,7 @@ void ourMallocAndFree(int numOfProcesses)
 		//get block range
 		for(int i=0; i<20000; i++){
 			if(memoryBlock[i] == 0) {//memory available
-				cout << "free block = " << i << endl;
+				//cout << "free block = " << i << endl;
 				if(blockSize < processMap[num].memorySize) {
 					if(startAvail == -1) {
 						startAvail = i;
@@ -233,17 +234,8 @@ void ourMallocAndFree(int numOfProcesses)
 					endAvail = i;
 					break;
 				}
-			} else {
-				//
-				if (processMap[num].memorySize <= blockSize) {
-					endAvail = i-1;
-					break;
-				} else {
-					startAvail = -1;
-					endAvail = -1;
-					blockSize = 0;
-				}
-			}
+			}		
+
 		}
 
 		cout << "startAvail =" << startAvail << endl;
@@ -252,7 +244,13 @@ void ourMallocAndFree(int numOfProcesses)
 		for(int i=startAvail; i <= endAvail; i++){
 			memoryBlock[i] = 1;
 		}
+
+		//reset
+		startAvail = -1;
+		endAvail = -1;
+		blockSize = 0;
 		//end our malloc
+
 
 
 		//start our free
