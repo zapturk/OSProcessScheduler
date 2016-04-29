@@ -204,12 +204,15 @@ int getMemSize(int numOfProcesses){
 void ourMallocAndFree(int numOfProcesses)
 {
 	clock_t start, finish;
+	int big, done = 0 , x, min;
 	int num;
 	int memoryBlock[20000];
 	int blockSize = 0;
 	int memoryBlockLimit = 20000;//20MB converted to KB
 	int startAvail = -1;
 	int endAvail = -1;
+	map <int, process> processMapCopy;
+	processMapCopy = processMap;
 
 	//initialize all 20MB as free
 	for(int i=0; i < 20000; i++){
@@ -219,6 +222,7 @@ void ourMallocAndFree(int numOfProcesses)
 	cout << endl << "----- Part 2 -----" << endl;
 
 	start = clock();
+	/*
 	for(num = 1; num <= numOfProcesses; num++){
 
 		//start our malloc
@@ -240,8 +244,6 @@ void ourMallocAndFree(int numOfProcesses)
 			}		
 		}
 
-		//cout << "startAvail =" << startAvail << endl;
-		//cout << "endAvail = " << endAvail << endl;
 		//allocate block range
 		for(int i=startAvail; i <= endAvail; i++){
 			memoryBlock[i] = 1;
@@ -256,12 +258,103 @@ void ourMallocAndFree(int numOfProcesses)
 		}
 		cout << "\tProcess " << num << "has been freed." << endl;
 		//end our free
+	}*/
 
-		//reset
-		startAvail = -1;
-		endAvail = -1;
-		blockSize = 0;
-	}
+		/*********************** new ******************/
+		for(num = 1; num <= numOfProcesses; num++){
+			//start our malloc
+			//get block range
+			for(int i=0; i<20000; i++){
+				if(memoryBlock[i] == 0) {//memory available
+					//cout << "free block = " << i << endl;
+					if(blockSize < processMap[num].memorySize) {
+						if(startAvail == -1) {
+							startAvail = i;
+						}
+						blockSize++;
+					}
+					if(blockSize >= processMap[num].memorySize){
+						endAvail = i;
+						cout << "Process " << num << " has been malloced." << endl;
+						break;
+					}
+				}		
+			}
+
+			//allocate block range
+			for(int i=startAvail; i <= endAvail; i++){
+				memoryBlock[i] = 1;
+			}
+			//end our malloc
+
+			cout << "Process " << num << " has been malloced." << endl;
+			
+			for(x=1; x<= num; x++){
+				if(processMapCopy[num].numOfCycles > 50){
+					processMapCopy[num].numOfCycles -= 50;
+				}
+				else if(processMapCopy[num].numOfCycles > 0){
+					processMapCopy[num].numOfCycles -= processMapCopy[num].numOfCycles;
+					//our free
+					for(int i=startAvail; i <= endAvail; i++) {
+						memoryBlock[i] = 0;
+					}
+					startAvail = -1;
+					endAvail = -1;
+					blockSize = 0;
+					//end our free
+					done++;
+					cout << "	Process " << x << " has been freed." << endl;
+				}
+			}
+		}
+
+		while(done != numOfProcesses){
+			big = 50000;
+
+			//find the smallest cycle left
+			for(num = 1; num <= numOfProcesses; num++){
+				if(processMapCopy[num].numOfCycles > 0){
+					if(processMapCopy[num].numOfCycles < big){
+						min = num;
+						big = processMapCopy[num].numOfCycles;
+					}
+				}
+			}
+
+			//take min from cycle left and free mem
+			for (x = 1; x <= numOfProcesses; x++){
+				if(min == x){
+					processMapCopy[x].numOfCycles -= processMapCopy[x].numOfCycles;
+					//our free
+					for(int i=startAvail; i <= endAvail; i++) {
+						memoryBlock[i] = 0;
+					}
+					startAvail = -1;
+					endAvail = -1;
+					blockSize = 0;
+					//end our free
+					done++;
+					cout << "	Process " << x << " has been freed." << endl;
+				}
+				else if(processMapCopy[x].numOfCycles > 0){
+					processMapCopy[x].numOfCycles -= processMapCopy[min].numOfCycles;
+					if(processMapCopy[x].numOfCycles == 0){
+					//our free
+					for(int i=startAvail; i <= endAvail; i++) {
+						memoryBlock[i] = 0;
+					}
+					startAvail = -1;
+					endAvail = -1;
+					blockSize = 0;
+					//end our free						
+					done++;
+						cout << "	Process " << x << " has been freed." << endl;
+					}
+				}
+			}
+		}
+	/******** end new ******/
 
 	finish = clock();
 	cout << "Using custom malloc/free: " << (double)(finish-start) / CLOCKS_PER_SEC << endl;
@@ -271,19 +364,21 @@ void sysMF(int numOfProcesses){
 	clock_t start, finish;
 	int big, done = 0 , x, min;
 	int num;
+	map <int, process> processMapCopy;
+	processMapCopy = processMap;
 
 	cout << endl << "	----Part 1----" << endl;
 	start = clock();
 	for(num = 1; num <= numOfProcesses; num++){
-		processMap[num].memBlock = malloc(processMap[num].memorySize);
+		processMapCopy[num].memBlock = malloc(processMapCopy[num].memorySize);
 		cout << "Process " << num << " has been malloced." << endl;
 		for(x=1; x<= num; x++){
-			if(processMap[num].numOfCycles > 50){
-				processMap[num].numOfCycles -= 50;
+			if(processMapCopy[num].numOfCycles > 50){
+				processMapCopy[num].numOfCycles -= 50;
 			}
-			else if(processMap[num].numOfCycles > 0){
-				processMap[num].numOfCycles -= processMap[num].numOfCycles;
-				free(processMap[num].memBlock);
+			else if(processMapCopy[num].numOfCycles > 0){
+				processMapCopy[num].numOfCycles -= processMapCopy[num].numOfCycles;
+				free(processMapCopy[num].memBlock);
 				done++;
 				cout << "	Process " << x << " has been freed." << endl;
 			}
@@ -295,10 +390,10 @@ void sysMF(int numOfProcesses){
 
 		//find the smallest cycle left
 		for(num = 1; num <= numOfProcesses; num++){
-			if(processMap[num].numOfCycles > 0){
-				if(processMap[num].numOfCycles < big){
+			if(processMapCopy[num].numOfCycles > 0){
+				if(processMapCopy[num].numOfCycles < big){
 					min = num;
-					big = processMap[num].numOfCycles;
+					big = processMapCopy[num].numOfCycles;
 				}
 			}
 		}
@@ -306,15 +401,15 @@ void sysMF(int numOfProcesses){
 		//take min from cycle left and free mem
 		for (x = 1; x <= numOfProcesses; x++){
 			if(min == x){
-				processMap[x].numOfCycles -= processMap[x].numOfCycles;
-				free(processMap[x].memBlock);
+				processMapCopy[x].numOfCycles -= processMapCopy[x].numOfCycles;
+				free(processMapCopy[x].memBlock);
 				done++;
 				cout << "	Process " << x << " has been freed." << endl;
 			}
-			else if(processMap[x].numOfCycles > 0){
-				processMap[x].numOfCycles -= processMap[min].numOfCycles;
-				if(processMap[x].numOfCycles == 0){
-					free(processMap[x].memBlock);
+			else if(processMapCopy[x].numOfCycles > 0){
+				processMapCopy[x].numOfCycles -= processMapCopy[min].numOfCycles;
+				if(processMapCopy[x].numOfCycles == 0){
+					free(processMapCopy[x].memBlock);
 					done++;
 					cout << "	Process " << x << " has been freed." << endl;
 				}
@@ -324,7 +419,7 @@ void sysMF(int numOfProcesses){
 
 
 	finish = clock();
-	cout << "Using system malloc: " << (double)(finish-start) / CLOCKS_PER_SEC << endl;
+	cout << "Using system malloc/free: " << (double)(finish-start) / CLOCKS_PER_SEC << endl;
 }
 
 
