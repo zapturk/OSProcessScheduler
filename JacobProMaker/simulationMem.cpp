@@ -223,15 +223,16 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 			for(int i=0; i<numMeg; i++){
 				if(memoryBlock[i] == 0) {//memory available
 					//cout << "free block = " << i << endl;
-					if(blockSize < processMap[num].memorySize) {
+					if(blockSize < processMapCopy[num].memorySize) {
 						if(startAvail == -1) {
 							startAvail = i;
 						}
 						blockSize++;
 					}
-					if(blockSize >= processMap[num].memorySize){
+					if(blockSize >= processMapCopy[num].memorySize){
 						endAvail = i;
 						cout << "Process " << num << " has been malloced." << endl;
+						processMapCopy[num].allocatedFlag = true;
 						break;
 					}
 				}		
@@ -246,11 +247,11 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 			//cout << "Process " << num << " has been malloced." << endl;
 			
 			for(x=1; x<= num; x++){
-				if(processMapCopy[num].numOfCycles > 50){
-					processMapCopy[num].numOfCycles -= 50;
+				if(processMapCopy[x].numOfCycles > 50){
+					processMapCopy[x].numOfCycles -= 50;
 				}
-				else if(processMapCopy[num].numOfCycles > 0){
-					processMapCopy[num].numOfCycles -= processMapCopy[num].numOfCycles;
+				else if(processMapCopy[x].numOfCycles > 0){
+					processMapCopy[x].numOfCycles -= processMapCopy[x].numOfCycles;
 					//our free
 					for(int i=startAvail; i <= endAvail; i++) {
 						memoryBlock[i] = 0;
@@ -334,7 +335,7 @@ void sysMF(int numOfProcesses){
 				processMapCopy[x].numOfCycles -= 50;
 			}
 			else if(processMapCopy[x].numOfCycles > 0){
-				processMapCopy[x].numOfCycles -= processMapCopy[num].numOfCycles;
+				processMapCopy[x].numOfCycles -= processMapCopy[x].numOfCycles;
 				free(processMapCopy[x].memBlock);
 				done++;
 				cout << "	Process " << x << " has been freed." << endl;
