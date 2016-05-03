@@ -31,6 +31,8 @@ public:
 	int processTimes;
 	void *memBlock;
 	bool allocatedFlag;
+	int startAvail;
+	int endAvail;
 
 	bool operator<(const process& other) const
 	{
@@ -46,6 +48,8 @@ public:
 		arrivalTime = 0;
 		processTimes = 0;
 		allocatedFlag = false;
+		startAvail = -1;
+		endAvail = -2;
 	}
 };
 
@@ -199,11 +203,11 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 	int memoryBlock[numMeg];
 	int blockSize = 0;
 	int memoryBlockLimit = 20000;//20MB converted to KB
-	int startAvail = -1;
-	int endAvail = -1;
+	//int startAvail = -1;
+	//int endAvail = -1;
 	map <int, process> processMapCopy;
 	processMapCopy = processMap;
-
+	int cat;
 	//initialize all 20MB as free
 	for(int i=0; i < numMeg; i++){
 		memoryBlock[i] = 0;
@@ -211,9 +215,9 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 	if(numMeg == 20000)
 		cout << endl << "----- Part 2 -----" << endl;
 	else if(numMeg == mem2)
-		cout << endl << "----- Part 3 half memory available -----" << endl;
+		cout << endl << "----- Part 3 half memory available -----" << mem2 << endl;
 	else if(numMeg == mem3)
-		cout << endl << "----- Part 3 10% memory available -----" << endl;
+		cout << endl << "----- Part 3 10% memory available -----" << mem3 << endl;
 	start = clock();
 
 		/*********************** new ******************/
@@ -224,47 +228,101 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 				if(memoryBlock[i] == 0) {//memory available
 					//cout << "free block = " << i << endl;
 					if(blockSize < processMapCopy[num].memorySize) {
-						if(startAvail == -1) {
-							startAvail = i;
+						if(processMapCopy[num].startAvail == -1) {
+							processMapCopy[num].startAvail = i;
 						}
 						blockSize++;
 					}
 					if(blockSize >= processMapCopy[num].memorySize){
-						endAvail = i;
+						processMapCopy[num].endAvail = i;
 						cout << "Process " << num << " has been malloced." << endl;
 						processMapCopy[num].allocatedFlag = true;
 						break;
 					}
+				}
+				if(memoryBlock[i] == 1){
+					blockSize = 0;
+					processMapCopy[num].startAvail = -1;
+				}
+			}
+
+			if(processMapCopy[num].allocatedFlag == true){
+				//allocate block range
+				for(int i=processMapCopy[num].startAvail; i <= processMapCopy[num].endAvail; i++){
+					memoryBlock[i] = 1;
+				}
+				//end our malloc
+
+				//cout << "Process " << num << " has been malloced." << endl;
+			
+				for(x=1; x<= num; x++){
+					if(processMapCopy[x].numOfCycles > 50){
+						processMapCopy[x].numOfCycles -= 50;
+					}
+					else if(processMapCopy[x].numOfCycles > 0){
+						processMapCopy[x].numOfCycles -= processMapCopy[x].numOfCycles;
+						//our free
+						for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
+							memoryBlock[i] = 0;
+						}
+						processMapCopy[x].startAvail = -1;
+						processMapCopy[x].endAvail = -2;
+						blockSize = 0;
+						//end our free
+						done++;
+						cout << "	Process " << x << " has been freed." << endl;
+					}
+				}
+			}
+			else{
+				//cout << num << " failed to malloc!!!!" << endl;
+				num--;
+				big = 50000;
+				for(x = 1; x<= num; x++){
+					if(processMapCopy[x].numOfCycles > 0){
+						if(processMapCopy[x].numOfCycles < big){
+							min = x;
+							big = processMapCopy[x].numOfCycles;
+						}
+					}
+				}
+
+				for (x = 1; x <= num; x++){
+					if(min == x){
+						processMapCopy[x].numOfCycles -= processMapCopy[x].numOfCycles;
+						//our free
+						for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
+							memoryBlock[i] = 0;
+							//cout << "block " << i << " is free now" << endl;
+						}
+						processMapCopy[x].startAvail = -1;
+						processMapCopy[x].endAvail = -2;
+						blockSize = 0;
+						//end our free
+						done++;
+						cout << "	Process " << x << " has been freed." << endl;
+						//cin >> cat;
+
+					}
+					else if(processMapCopy[x].numOfCycles > 0){
+						processMapCopy[x].numOfCycles -= processMapCopy[min].numOfCycles;
+						if(processMapCopy[x].numOfCycles == 0){
+							//our free
+							for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
+								memoryBlock[i] = 0;
+							}
+							processMapCopy[x].startAvail = -1;
+							processMapCopy[x].endAvail = -2;
+							blockSize = 0;
+							//end our free						
+							done++;
+							cout << "	Process " << x << " has been freed." << endl;
+						}
+					}
 				}		
 			}
-
-			//allocate block range
-			for(int i=startAvail; i <= endAvail; i++){
-				memoryBlock[i] = 1;
-			}
-			//end our malloc
-
-			//cout << "Process " << num << " has been malloced." << endl;
-			
-			for(x=1; x<= num; x++){
-				if(processMapCopy[x].numOfCycles > 50){
-					processMapCopy[x].numOfCycles -= 50;
-				}
-				else if(processMapCopy[x].numOfCycles > 0){
-					processMapCopy[x].numOfCycles -= processMapCopy[x].numOfCycles;
-					//our free
-					for(int i=startAvail; i <= endAvail; i++) {
-						memoryBlock[i] = 0;
-					}
-					startAvail = -1;
-					endAvail = -1;
-					blockSize = 0;
-					//end our free
-					done++;
-					cout << "	Process " << x << " has been freed." << endl;
-				}
-			}
 		}
+			
 
 		while(done != numOfProcesses){
 			big = 50000;
@@ -284,11 +342,11 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 				if(min == x){
 					processMapCopy[x].numOfCycles -= processMapCopy[x].numOfCycles;
 					//our free
-					for(int i=startAvail; i <= endAvail; i++) {
+					for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
 						memoryBlock[i] = 0;
 					}
-					startAvail = -1;
-					endAvail = -1;
+					processMapCopy[x].startAvail = -1;
+					processMapCopy[x].endAvail = -1;
 					blockSize = 0;
 					//end our free
 					done++;
@@ -298,11 +356,11 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 					processMapCopy[x].numOfCycles -= processMapCopy[min].numOfCycles;
 					if(processMapCopy[x].numOfCycles == 0){
 					//our free
-					for(int i=startAvail; i <= endAvail; i++) {
+					for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
 						memoryBlock[i] = 0;
 					}
-					startAvail = -1;
-					endAvail = -1;
+					processMapCopy[x].startAvail = -1;
+					processMapCopy[x].endAvail = -1;
 					blockSize = 0;
 					//end our free						
 					done++;
