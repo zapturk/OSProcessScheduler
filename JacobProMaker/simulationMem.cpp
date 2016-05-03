@@ -196,7 +196,7 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 	int num;
 	int memoryBlock[numMeg];
 	int blockSize = 0;
-	int memoryBlockLimit = numMeg;//20MB converted to KB
+	int memoryBlockLimit = 20000;//20MB converted to KB
 	int startAvail = -1;
 	int endAvail = -1;
 	map <int, process> processMapCopy;
@@ -363,13 +363,13 @@ void sysMF(int numOfProcesses){
 	for(num = 1; num <= numOfProcesses; num++){
 		processMapCopy[num].memBlock = malloc(processMapCopy[num].memorySize);
 		cout << "Process " << num << " has been malloced." << endl;
-		for(x=1; x<= num; x++){
-			if(processMapCopy[num].numOfCycles > 50){
-				processMapCopy[num].numOfCycles -= 50;
+		for(x=1; x <= num; x++){
+			if(processMapCopy[x].numOfCycles > 50){
+				processMapCopy[x].numOfCycles -= 50;
 			}
-			else if(processMapCopy[num].numOfCycles > 0){
-				processMapCopy[num].numOfCycles -= processMapCopy[num].numOfCycles;
-				free(processMapCopy[num].memBlock);
+			else if(processMapCopy[x].numOfCycles > 0){
+				processMapCopy[x].numOfCycles -= processMapCopy[num].numOfCycles;
+				free(processMapCopy[x].memBlock);
 				done++;
 				cout << "	Process " << x << " has been freed." << endl;
 			}
