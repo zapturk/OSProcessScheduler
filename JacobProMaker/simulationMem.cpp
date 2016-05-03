@@ -51,6 +51,7 @@ map <int, process> processMap;
 
 int processorInUse[51][5];//if using, call clearProcessors() when your function is done
 int setNum = 1;
+int mem2 = 0, mem3 = 0;
 
 void clearProcessors();
 void simulate(int );
@@ -61,7 +62,7 @@ void sjfMulti(int i);
 void roundRobin(int );
 void roundRobinMulti(int );
 void processEdit(int );
-int getMemSize(int );
+void getMemSize(int );
 void sysMF(int );
 void ourMallocAndFree(int , int);
 
@@ -78,8 +79,9 @@ int main()
 	simulate(i);
 	sysMF(i);
 	ourMallocAndFree(i, 20000);
-	ourMallocAndFree(i, 10000);
-	ourMallocAndFree(i, 2000);
+	getMemSize(i);
+	ourMallocAndFree(i, mem2);
+	ourMallocAndFree(i, mem3);
 	
 	return 0;
 }
@@ -177,12 +179,14 @@ void simulate(int numOfProcesses)
 
 
 
-int getMemSize(int numOfProcesses){
+void getMemSize(int numOfProcesses){
 	int num, total = 0;
 	for(num = 1; num <= numOfProcesses; num++){
 		total += processMap[num].memorySize;
 	}
-	return(total);
+	mem2 = total*.5;
+	mem3 = total*.1;
+	//return(total);
 }
 
 void ourMallocAndFree(int numOfProcesses, int numMeg)
@@ -204,9 +208,9 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 	}
 	if(numMeg == 20000)
 		cout << endl << "----- Part 2 -----" << endl;
-	else if(numMeg == 10000)
+	else if(numMeg == mem2)
 		cout << endl << "----- Part 3 half memory available -----" << endl;
-	else if(numMeg == 2000)
+	else if(numMeg == mem3)
 		cout << endl << "----- Part 3 10% memory available -----" << endl;
 	start = clock();
 	/*
