@@ -30,6 +30,7 @@ public:
 	int arrivalTime;
 	int processTimes;
 	void *memBlock;
+	bool allocatedFlag;
 
 	bool operator<(const process& other) const
 	{
@@ -44,6 +45,7 @@ public:
 		waitTime = 0;
 		arrivalTime = 0;
 		processTimes = 0;
+		allocatedFlag = false;
 	}
 };
 
@@ -209,43 +211,6 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 	else if(numMeg == 2000)
 		cout << endl << "----- Part 3 10% memory available -----" << endl;
 	start = clock();
-	/*
-	for(num = 1; num <= numOfProcesses; num++){
-
-		//start our malloc
-		//get block range
-		for(int i=0; i<20000; i++){
-			if(memoryBlock[i] == 0) {//memory available
-				//cout << "free block = " << i << endl;
-				if(blockSize < processMap[num].memorySize) {
-					if(startAvail == -1) {
-						startAvail = i;
-					}
-					blockSize++;
-				}
-				if(blockSize >= processMap[num].memorySize){
-					endAvail = i;
-					cout << "Process " << num << " has been malloced." << endl;
-					break;
-				}
-			}		
-		}
-
-		//allocate block range
-		for(int i=startAvail; i <= endAvail; i++){
-			memoryBlock[i] = 1;
-		}
-		//end our malloc
-
-
-
-		//start our free
-		for(int i=startAvail; i <= endAvail; i++) {
-			memoryBlock[i] = 0;
-		}
-		cout << "\tProcess " << num << "has been freed." << endl;
-		//end our free
-	}*/
 
 		/*********************** new ******************/
 		for(num = 1; num <= numOfProcesses; num++){
@@ -344,7 +309,8 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 	/******** end new ******/
 
 	finish = clock();
-	cout << "Using custom malloc/free: " << (double)(finish-start) / CLOCKS_PER_SEC << endl;
+	//cout << "Using custom malloc/free: " << (double)(finish-start) / CLOCKS_PER_SEC << endl;
+	printf("Using custom malloc/free: %0.6g\n", ((double)(finish-start) / CLOCKS_PER_SEC));
 }
 
 void sysMF(int numOfProcesses){
