@@ -61,19 +61,10 @@ int mem2 = 0, mem3 = 0;
 
 void clearProcessors();
 void simulate(int );
-void fifo(int );
-void fifoMulti(int );
-void sjf(int );
-void sjfMulti(int i);
-void roundRobin(int );
-void roundRobinMulti(int );
 void processEdit(int );
 void getMemSize(int );
-void sysMF(int );
+void sysMF(int , int );
 void ourMallocAndFree(int , int);
-
-int ourFree(int , int);
-
 
 int main()
 {
@@ -83,11 +74,15 @@ int main()
 
 	//run of first set of processes
 	simulate(i);
-	sysMF(i);
-	ourMallocAndFree(i, 20000);
 	getMemSize(i);
+	sysMF(i, 20000);//part 1
+	ourMallocAndFree(i, 20000);//part 2
+	/*** part 3 ***/
 	ourMallocAndFree(i, mem2);
 	ourMallocAndFree(i, mem3);
+	sysMF(i, mem2);
+	sysMF(i, mem3);
+	/*** end part 3 ***/
 	
 	return 0;
 }
@@ -213,178 +208,185 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 		memoryBlock[i] = 0;
 	}
 	if(numMeg == 20000)
-		cout << endl << "----- Part 2 -----" << endl;
+		cout << endl << "----- Part 2 (Our Malloc/Free) -----" << endl;
 	else if(numMeg == mem2)
-		cout << endl << "----- Part 3 half memory available -----" << mem2 << endl;
+		cout << endl << "----- Part 3 half memory available (Our Malloc/Free) -----" << mem2 << endl;
 	else if(numMeg == mem3)
-		cout << endl << "----- Part 3 10% memory available -----" << mem3 << endl;
+		cout << endl << "----- Part 3 10% memory available (Our Malloc/Free) -----" << mem3 << endl;
 	start = clock();
 
-		/*********************** new ******************/
-		for(num = 1; num <= numOfProcesses; num++){
-			//start our malloc
-			//get block range
-			for(int i=0; i<numMeg; i++){
-				if(memoryBlock[i] == 0) {//memory available
-					//cout << "free block = " << i << endl;
-					if(blockSize < processMapCopy[num].memorySize) {
-						if(processMapCopy[num].startAvail == -1) {
-							processMapCopy[num].startAvail = i;
-						}
-						blockSize++;
+		/*********************** simulation ******************/
+	for(num = 1; num <= numOfProcesses; num++){
+		//start our malloc
+		//get block range
+		for(int i=0; i<numMeg; i++){
+			if(memoryBlock[i] == 0) {//memory available
+				//cout << "free block = " << i << endl;
+				if(blockSize < processMapCopy[num].memorySize) {
+					if(processMapCopy[num].startAvail == -1) {
+						processMapCopy[num].startAvail = i;
 					}
-					if(blockSize >= processMapCopy[num].memorySize){
-						processMapCopy[num].endAvail = i;
-						cout << "Process " << num << " has been malloced." << endl;
-						processMapCopy[num].allocatedFlag = true;
-						break;
-					}
+					blockSize++;
 				}
-				if(memoryBlock[i] == 1){
-					blockSize = 0;
-					processMapCopy[num].startAvail = -1;
+				if(blockSize >= processMapCopy[num].memorySize){
+					processMapCopy[num].endAvail = i;
+					cout << "Process " << num << " has been malloced." << endl;
+					processMapCopy[num].allocatedFlag = true;
+					break;
 				}
 			}
-
-			if(processMapCopy[num].allocatedFlag == true){
-				//allocate block range
-				for(int i=processMapCopy[num].startAvail; i <= processMapCopy[num].endAvail; i++){
-					memoryBlock[i] = 1;
-				}
-				//end our malloc
-
-				//cout << "Process " << num << " has been malloced." << endl;
-			
-				for(x=1; x<= num; x++){
-					if(processMapCopy[x].numOfCycles > 50){
-						processMapCopy[x].numOfCycles -= 50;
-					}
-					else if(processMapCopy[x].numOfCycles > 0){
-						processMapCopy[x].numOfCycles -= processMapCopy[x].numOfCycles;
-						//our free
-						for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
-							memoryBlock[i] = 0;
-						}
-						processMapCopy[x].startAvail = -1;
-						processMapCopy[x].endAvail = -2;
-						blockSize = 0;
-						//end our free
-						done++;
-						cout << "	Process " << x << " has been freed." << endl;
-					}
-				}
-			}
-			else{
-				//cout << num << " failed to malloc!!!!" << endl;
-				num--;
-				big = 50000;
-				for(x = 1; x<= num; x++){
-					if(processMapCopy[x].numOfCycles > 0){
-						if(processMapCopy[x].numOfCycles < big){
-							min = x;
-							big = processMapCopy[x].numOfCycles;
-						}
-					}
-				}
-
-				for (x = 1; x <= num; x++){
-					if(min == x){
-						processMapCopy[x].numOfCycles -= processMapCopy[x].numOfCycles;
-						//our free
-						for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
-							memoryBlock[i] = 0;
-							//cout << "block " << i << " is free now" << endl;
-						}
-						processMapCopy[x].startAvail = -1;
-						processMapCopy[x].endAvail = -2;
-						blockSize = 0;
-						//end our free
-						done++;
-						cout << "	Process " << x << " has been freed." << endl;
-						//cin >> cat;
-
-					}
-					else if(processMapCopy[x].numOfCycles > 0){
-						processMapCopy[x].numOfCycles -= processMapCopy[min].numOfCycles;
-						if(processMapCopy[x].numOfCycles == 0){
-							//our free
-							for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
-								memoryBlock[i] = 0;
-							}
-							processMapCopy[x].startAvail = -1;
-							processMapCopy[x].endAvail = -2;
-							blockSize = 0;
-							//end our free						
-							done++;
-							cout << "	Process " << x << " has been freed." << endl;
-						}
-					}
-				}		
+			if(memoryBlock[i] == 1){
+				blockSize = 0;
+				processMapCopy[num].startAvail = -1;
 			}
 		}
-			
 
-		while(done != numOfProcesses){
-			big = 50000;
-
-			//find the smallest cycle left
-			for(num = 1; num <= numOfProcesses; num++){
-				if(processMapCopy[num].numOfCycles > 0){
-					if(processMapCopy[num].numOfCycles < big){
-						min = num;
-						big = processMapCopy[num].numOfCycles;
-					}
-				}
+		if(processMapCopy[num].allocatedFlag == true){
+			//allocate block range
+			for(int i=processMapCopy[num].startAvail; i <= processMapCopy[num].endAvail; i++){
+				memoryBlock[i] = 1;
 			}
+			//end our malloc
 
-			//take min from cycle left and free mem
-			for (x = 1; x <= numOfProcesses; x++){
-				if(min == x){
+			//cout << "Process " << num << " has been malloced." << endl;
+		
+			for(x=1; x<= num; x++){
+				if(processMapCopy[x].numOfCycles > 50){
+					processMapCopy[x].numOfCycles -= 50;
+				}
+				else if(processMapCopy[x].numOfCycles > 0){
 					processMapCopy[x].numOfCycles -= processMapCopy[x].numOfCycles;
 					//our free
 					for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
 						memoryBlock[i] = 0;
 					}
 					processMapCopy[x].startAvail = -1;
-					processMapCopy[x].endAvail = -1;
+					processMapCopy[x].endAvail = -2;
 					blockSize = 0;
 					//end our free
 					done++;
 					cout << "	Process " << x << " has been freed." << endl;
 				}
-				else if(processMapCopy[x].numOfCycles > 0){
-					processMapCopy[x].numOfCycles -= processMapCopy[min].numOfCycles;
-					if(processMapCopy[x].numOfCycles == 0){
-					//our free
-					for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
-						memoryBlock[i] = 0;
-					}
-					processMapCopy[x].startAvail = -1;
-					processMapCopy[x].endAvail = -1;
-					blockSize = 0;
-					//end our free						
-					done++;
-						cout << "	Process " << x << " has been freed." << endl;
+			}
+		}
+		else{
+			//cout << num << " failed to malloc!!!!" << endl;
+			num--;
+			big = 50000;
+			for(x = 1; x<= num; x++){
+				if(processMapCopy[x].numOfCycles > 0){
+					if(processMapCopy[x].numOfCycles < big){
+						min = x;
+						big = processMapCopy[x].numOfCycles;
 					}
 				}
 			}
+
+			for (x = 1; x <= num; x++){
+				if(min == x){
+					processMapCopy[x].numOfCycles -= processMapCopy[x].numOfCycles;
+					//our free
+					for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
+						memoryBlock[i] = 0;
+						//cout << "block " << i << " is free now" << endl;
+					}
+					processMapCopy[x].startAvail = -1;
+					processMapCopy[x].endAvail = -2;
+					blockSize = 0;
+					//end our free
+					done++;
+					cout << "	Process " << x << " has been freed." << endl;
+					//cin >> cat;
+
+				}
+				else if(processMapCopy[x].numOfCycles > 0){
+					processMapCopy[x].numOfCycles -= processMapCopy[min].numOfCycles;
+					if(processMapCopy[x].numOfCycles == 0){
+						//our free
+						for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
+							memoryBlock[i] = 0;
+						}
+						processMapCopy[x].startAvail = -1;
+						processMapCopy[x].endAvail = -2;
+						blockSize = 0;
+						//end our free						
+						done++;
+						cout << "	Process " << x << " has been freed." << endl;
+					}
+				}
+			}		
 		}
-	/******** end new ******/
+	}
+		
+
+	while(done != numOfProcesses){
+		big = 50000;
+
+		//find the smallest cycle left
+		for(num = 1; num <= numOfProcesses; num++){
+			if(processMapCopy[num].numOfCycles > 0){
+				if(processMapCopy[num].numOfCycles < big){
+					min = num;
+					big = processMapCopy[num].numOfCycles;
+				}
+			}
+		}
+
+		//take min from cycle left and free mem
+		for (x = 1; x <= numOfProcesses; x++){
+			if(min == x){
+				processMapCopy[x].numOfCycles -= processMapCopy[x].numOfCycles;
+				//our free
+				for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
+					memoryBlock[i] = 0;
+				}
+				processMapCopy[x].startAvail = -1;
+				processMapCopy[x].endAvail = -1;
+				blockSize = 0;
+				//end our free
+				done++;
+				cout << "	Process " << x << " has been freed." << endl;
+			}
+			else if(processMapCopy[x].numOfCycles > 0){
+				processMapCopy[x].numOfCycles -= processMapCopy[min].numOfCycles;
+				if(processMapCopy[x].numOfCycles == 0){
+				//our free
+				for(int i=processMapCopy[x].startAvail; i <= processMapCopy[x].endAvail; i++) {
+					memoryBlock[i] = 0;
+				}
+				processMapCopy[x].startAvail = -1;
+				processMapCopy[x].endAvail = -1;
+				blockSize = 0;
+				//end our free						
+				done++;
+					cout << "	Process " << x << " has been freed." << endl;
+				}
+			}
+		}
+	}
+	/******** end simulation ******/
 
 	finish = clock();
 	//cout << "Using custom malloc/free: " << (double)(finish-start) / CLOCKS_PER_SEC << endl;
 	printf("Using custom malloc/free: %0.6g\n", ((double)(finish-start) / CLOCKS_PER_SEC));
 }
 
-void sysMF(int numOfProcesses){
+void sysMF(int numOfProcesses, int numMeg){
 	clock_t start, finish;
 	int big, done = 0 , x, min;
 	int num;
 	map <int, process> processMapCopy;
 	processMapCopy = processMap;
 
-	cout << endl << "	----Part 1----" << endl;
+	if(numMeg == 20000)
+		cout << endl << "----- Part 1 (System Malloc/Free) -----" << endl;
+	else if(numMeg == mem2)
+		cout << endl << "----- Part 3 half memory available (System Malloc/Free) -----" << mem2 << endl;
+	else if(numMeg == mem3)
+		cout << endl << "----- Part 3 10% memory available (System Malloc/Free) -----" << mem3 << endl;
+	
 	start = clock();
+
 	for(num = 1; num <= numOfProcesses; num++){
 		processMapCopy[num].memBlock = malloc(processMapCopy[num].memorySize);
 		cout << "Process " << num << " has been malloced." << endl;
