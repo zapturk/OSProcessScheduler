@@ -195,7 +195,7 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 	clock_t start, finish;
 	int big, done = 0 , x, min;
 	int num;
-	int memoryBlock[numMeg];
+	char memoryBlock[numMeg];
 	int blockSize = 0;
 	int memoryBlockLimit = 20000;//20MB converted to KB
 	//int startAvail = -1;
@@ -222,6 +222,7 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 		for(int i=0; i<numMeg; i++){
 			if(memoryBlock[i] == 0) {//memory available
 				//cout << "free block = " << i << endl;
+				//cout << "memoryBlock should be 0. actually is " << (int) memoryBlock[i] << endl;				
 				if(blockSize < processMapCopy[num].memorySize) {
 					if(processMapCopy[num].startAvail == -1) {
 						processMapCopy[num].startAvail = i;
@@ -236,6 +237,7 @@ void ourMallocAndFree(int numOfProcesses, int numMeg)
 				}
 			}
 			if(memoryBlock[i] == 1){
+				//cout << "memoryBlock should be 1. actually is " << (int)memoryBlock[i] << endl;
 				blockSize = 0;
 				processMapCopy[num].startAvail = -1;
 			}
